@@ -1,0 +1,18 @@
+# no_std-first hardware tick-counter measurement probe.
+# Consolidates four drifted copies (actor-x1, zc-ring-x1,
+# iiac-perf, prospectively zc-msg-x1) into one crate; see
+# notes/design.md for the founding rationale.
+[package]
+name = "tprobe"
+version = "0.1.0-0"
+edition = "2024"
+rust-version = "1.97"
+license = "MIT OR Apache-2.0"
+description = "no_std-first hardware tick-counter measurement probe"
+publish = false
+
+[features]
+default = ["std"]
+std = []
+
+[dependencies]

@@ -189,8 +189,7 @@ Revsets (sets of revisions) are how jj addresses commits. A
 revision is identified by `@`, a chid, or a cid, and revsets are
 built from those identifiers plus the operators `-`, `+`, `..`,
 and `::`. There is a complete language available — see
-`jj help -k revsets`. The [`substep-test.sh`](substep-test.sh)
-script scaffolds the example repo used below.
+`jj help -k revsets`.
 
 Summary:
 

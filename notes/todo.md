@@ -6,26 +6,25 @@ uses links or reference links for more details.
 
 ## In Progress
 
-When a `## Todo` item is picked up, its text moves here: the
-problem overview and its list of things to do. That is followed
-by the "plan" — a bulleted list of the development "ladder":
-   - 0.xx.y-0 blah (done)
-   - 0.xx.y-1 blah blah (current)
-   - 0.xx.y-2 blah blah blah
-   - 0.xx.y close-out and validation
+**feat: no_std tprobe core**
 
-**fix: number todo example entries per Todo format**
+[design.md](design.md) settles tprobe's founding rationale but
+leaves three open questions that gate the crate's shape: which
+`no_std` histogram, whether iiac-perf's fork is deliberate, and
+where pinning / `perf_event_open` live. Resolve the three —
+recording each decision in a chores design subsection — then
+stand up the `no_std` core (no-alloc histogram, `&'static str`
+names, cycle-counter trait, `std`-gated reporting).
 
-AGENTS.md's "Example shape" `# Todo` entries used `-` bullets,
-contradicting the normative "entries carry explicit `1.` `2.` …
-numbers" text above it. iiac-perf hit the same nonconformance
-in its real list and fixed both there (its AGENTS.md is a copy);
-this syncs the template's AGENTS.md to match.
-
-- AGENTS.md example numbered (done)
-- todo.md's dummy `## Todo` entry numbered (done)
-- `fix-todo` / `validate-todo` run clean (done)
-- commit + push via this repo's cycle protocol (current)
+- 0.1.0-0 prep: open cycle + chores design subsections for the
+  three questions (current)
+- 0.1.0-1 decide `no_std` histogram — existing crate vs
+  hand-rolled fixed-bucket table [[1]]
+- 0.1.0-2 confirm iiac-perf fork intent — deliberate (two-repo)
+  vs incidental (three-repo consolidation) [[2]]
+- 0.1.0-3 place pinning / `perf_event_open` — this crate's `std`
+  feature vs a separate runner crate [[3]]
+- 0.1.0 close-out and validation
 
 ## Todo
 
@@ -41,19 +40,13 @@ this syncs the template's AGENTS.md to match.
  detail goes in `notes/chores/chores-NN.md` design
  subsections (link via `[N]` ref).
 
-
-1. chore: dummy chore (TBD) [[2]]
-
 ## Done
 
 Completed tasks are moved from `## Todo` to here, `## Done`, as they are completed
 and older `## Done` sections are moved to [done.md](done.md) to keep this file small.
 
-- docs: completed dummy chore (0.1.0) [[1]]
-- docs: versioning SSOT + generic conventions [[3]]
-
 # References
 
-[1]: chores/chores-01.md#docs-completed-dummy-chore-010
-[2]: chores/chores-01.md#chore-dummy-chore-tbd
-[3]: chores/chores-01.md#docs-versioning-ssot--generic-conventions
+[1]: chores/chores-01.md#q1-no_std-histogram-crate-vs-hand-rolled
+[2]: chores/chores-01.md#q2-iiac-perf-fork-deliberate
+[3]: chores/chores-01.md#q3-pinning-and-perf_event_open-placement

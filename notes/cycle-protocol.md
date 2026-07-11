@@ -636,9 +636,6 @@ prior commits:
 
 - [`jj-tips.md`](jj-tips.md#revsets) — revset primitives
   (chid/cid, `@`/`@-`/`@+`, `..`/`::` ranges, prefix matching).
-- [`substep-test.sh`](substep-test.sh) — script that
-  scaffolds a 4-revision ladder under `/tmp/substep-test`
-  for squash-recipe experiments.
 - The per-commit `cargo test --bins` gate exists because a
   regression introduced in an early ladder commit can go
   uncaught until a later commit runs the full suite, raising
