@@ -644,23 +644,51 @@ its own line in the rendered help.
 
 ### `// OK: …` comments on `unwrap*` calls (Rust)
 
-Non-test code that calls `.unwrap()`, `.unwrap_or(…)`,
-`.unwrap_or_default()`, or `.unwrap_or_else(…)` must have a trailing
-`// OK: …` comment that justifies why the call is acceptable.
+The default in non-test code is to **not** use `.unwrap()`,
+`.expect(…)`, or the `.unwrap_or*(…)` siblings — prefer a shape
+that doesn't need them (`match`, `if let`, slice patterns,
+infallible-by-construction APIs), which is usually also the
+clearer code. This is a lean, not a ban: some sites are
+legitimately best expressed with one. Two kinds of risk, both
+in scope:
 
-- `// OK: <specific reason>` — document the real precondition,
-  invariant, or domain reason. Preferred whenever the reason isn't
-  self-evident.
-- `// OK: obvious` — the default is self-evident from context (e.g.
-  `desc.lines().next().unwrap_or("")` — empty desc → empty title).
+- `.unwrap()` / `.expect(…)` — a panic path.
+- `.unwrap_or(…)` / `.unwrap_or_default()` /
+  `.unwrap_or_else(…)` — no panic, but a silently substituted
+  value that can hide a wrong result.
 
-Bare `// OK` is not used (reads like a truncated comment).
-Abbreviations (e.g. `SE`) are not used because they require a decoder
-ring for readers seeing the code out of context.
+When one is used, three obligations attach:
 
-For provably-unreachable `.unwrap()` calls, also prefix with
-`#[allow(clippy::unwrap_used)]` so the site stays silent if we enable
-the project-wide `clippy::unwrap_used` lint later.
+- A trailing `// OK: …` comment justifying why the call is
+  acceptable:
+  - `// OK: <specific reason>` — document the real
+    precondition, invariant, or domain reason. Preferred
+    whenever the reason isn't self-evident.
+  - `// OK: obvious` — the default is self-evident from context
+    (e.g. `desc.lines().next().unwrap_or("")` — empty desc →
+    empty title).
+  - Bare `// OK` is not used (reads like a truncated comment).
+    Abbreviations (e.g. `SE`) are not used because they require
+    a decoder ring for readers seeing the code out of context.
+- **Alert the user in conversation** when introducing one, so
+  the site gets reviewed and appropriate uses are learned —
+  don't let it ride in silently on a larger diff.
+- For `.unwrap()` / `.expect(…)`, an `#[allow(...)]` at the
+  site, because Rust projects enable the project-wide lints in
+  `Cargo.toml`:
+
+  ```toml
+  [lints.clippy]
+  unwrap_used = "warn"
+  expect_used = "warn"
+  ```
+
+  Every panicking site is then opt-in and visible in the diff;
+  clippy (run by preflight) catches any that slip through. The
+  `_or*` siblings have no clippy lint — they are covered by the
+  comment convention and the conversational alert. (The
+  template's `CargoRust.toml` seeds a base `Cargo.toml` with
+  this section already in place.)
 
 ```rust
 let max = stderr_level.unwrap_or(LevelFilter::Info); // OK: default verbosity when -v/-vv absent

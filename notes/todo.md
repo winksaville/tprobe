@@ -8,22 +8,30 @@ uses links or reference links for more details.
 
 **feat: no_std tprobe core**
 
-[design.md](design.md) settles tprobe's founding rationale but
-leaves three open questions that gate the crate's shape: which
-`no_std` histogram, whether iiac-perf's fork is deliberate, and
-where pinning / `perf_event_open` live. Resolve the three —
-recording each decision in a chores design subsection — then
-stand up the `no_std` core (no-alloc histogram, `&'static str`
-names, cycle-counter trait, `std`-gated reporting).
+[design.md](design.md) settles tprobe's founding rationale and
+the collection / analysis / presentation phase split (pluggable
+Recorder, histogram-as-compression), but leaves open questions
+that gate the crate's shape: which `no_std` histogram, the
+recorder trait shape, the snapshot wire format, whether
+iiac-perf's fork is deliberate, and where pinning /
+`perf_event_open` live. Resolve the gating ones — recording
+each decision in a chores design subsection — then seed the
+`no_std` core from the existing copies under the new
+constraints (no-alloc histogram, `&'static str` names,
+cycle-counter trait, recorders, `std`-gated reporting).
 
 - 0.1.0-0 prep: open cycle + chores design subsections for the
-  three questions (current)
-- 0.1.0-1 decide `no_std` histogram — existing crate vs
+  three questions (done)
+- 0.1.0-1 docs: no_std core phase split + unwrap lints (done)
+- 0.1.0-2 decide `no_std` histogram — existing crate vs
   hand-rolled fixed-bucket table [[1]]
-- 0.1.0-2 confirm iiac-perf fork intent — deliberate (two-repo)
+- 0.1.0-3 confirm iiac-perf fork intent — deliberate (two-repo)
   vs incidental (three-repo consolidation) [[2]]
-- 0.1.0-3 place pinning / `perf_event_open` — this crate's `std`
+- 0.1.0-4 place pinning / `perf_event_open` — this crate's `std`
   feature vs a separate runner crate [[3]]
+- 0.1.0-5 seed the core from the existing copies per the
+  phase/recorder design (ticks, probe, recorder trait);
+  expand into a sub-cycle as it grows
 - 0.1.0 close-out and validation
 
 ## Todo

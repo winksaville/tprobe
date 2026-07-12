@@ -10,24 +10,23 @@ discussion that created this repo.
 
 ## The problem: four divergent copies, none no_std
 
-Four independent copies of the tick-probe exist, drifted apart —
+Three independent copies of the tick-probe exist, drifted apart —
 not just vendored duplicates but three different scope decisions:
 
+- **iiac-perf** (`src/tprobe.rs` + `src/tprobe2.rs` +
+  `src/band_table.rs`, ~442 lines total, in the 0.20.0 binary) —
+  a minimal probe core with the full calibrated harness built
+  around it in the same crate and is the original version.
 - **actor-x1** (`crates/tprobe`, v0.1.5) — the richest:
   `tprobe.rs` (~312 lines) folds `overhead.rs`
   (apparatus-overhead calibration) and `pin.rs` (CPU pinning)
-  *into* the probe crate. Its manifest says "vendored from
-  iiac-perf". This repo is where the probe was first created.
+  _into_ the probe crate. And is based on iiac-perf version.
 - **zc-ring-x1** (`tprobe` v0.1.0 + sibling `tp_runner`) — split
   the other way: a bare `tprobe` crate (probe + `ticks` +
   `band_table` + `tprobe_span`) and a separate `tp_runner` crate
   holding the drive loop, pinning, and Linux `perf_event_open`
   counters. `tprobe.rs` is ~110 lines.
-- **iiac-perf** (`src/tprobe.rs` + `src/tprobe2.rs` +
-  `src/band_table.rs`, ~442 lines total, in the 0.20.0 binary) —
-  a minimal probe core with the full calibrated harness built
-  around it in the same crate.
-- **zc-msg-x1** — would have been a fifth copy if its seeding
+- **zc-msg-x1** — would have been a forth copy if its seeding
   plan (path-dep zc-ring-x1's `tprobe`/`tp_runner`) were followed
   as written. Consolidating here is what stops that.
 
@@ -68,17 +67,17 @@ published percentile tables.
 The perf-book benchmarking page [[1]] lists criterion, divan,
 hyperfine, iai/gungraun (callgrind), bencher, and rustc-perf.
 None replaces the probe for the need that motivates it — a
-nanosecond-scale, cross-core, tail-latency *distribution* of a
+nanosecond-scale, cross-core, tail-latency _distribution_ of a
 lock-free hot path, measurable on the target:
 
 - **criterion / divan** — host-std statistical microbench
-  harnesses. Good for A/B + throughput at the *mean*; they do not
+  harnesses. Good for A/B + throughput at the _mean_; they do not
   surface deep tail bands (the n5..n10 / p.999_999_999 rows these
   measurements are about — batch-timing discards the
   distribution). Both are `std`, so neither runs on an embedded
   target. divan is additionally stale (last release April 2025).
 - **iai / gungraun (callgrind)** — instruction-count / cache
-  *simulation*. Noise-free and great for CI regression guards,
+  _simulation_. Noise-free and great for CI regression guards,
   but they model a single simulated run and cannot reproduce the
   real cross-core cache-line-transfer economics that is the whole
   point (the 26–40% SPSC-vs-MPSC gap zc-ring measured is a
@@ -87,9 +86,9 @@ lock-free hot path, measurable on the target:
   granularity for ns round-trips. **bencher** — a CI tracking
   layer, orthogonal to how the numbers are produced.
 
-So for *host-side* CI regression gating an off-the-shelf harness
+So for _host-side_ CI regression gating an off-the-shelf harness
 would work, but iiac-perf already covers host-side, making a
-second one largely redundant; and for *on-target* embedded
+second one largely redundant; and for _on-target_ embedded
 measurement nothing off-the-shelf applies at all. This
 home-grown probe is the only thing that can measure on the
 target — which is why it is worth investing in rather than
@@ -123,6 +122,93 @@ be a redesign toward a `no_std` core with an opt-in `std` layer:
   not in actor-x1; fold in as an optional part of the core, same
   `no_std` discipline.
 
+## Phases: collection, analysis, presentation
+
+Two use classes shape the crate. In a **benchmark** the
+measurement is the work (iiac-perf, the actor-x1 benches). In an
+**instrumented application** the probe discovers critical paths
+and monitors the app generally — we think this is the majority
+use case if the crate succeeds, including embedded targets where
+data is never presented on the device. The existing copies fold
+analysis into collection (histogram update on the hot path,
+rendering in-process); this design separates three phases and
+keeps everything but raw collection off the measured path:
+
+- **Collection** — the hot path does a tick read, a delta, and
+  one recorder operation; nothing else. The recorder is a
+  pluggable trait with three `no_std` impls:
+  - `ArrayRecorder` — preallocated delta array, one sequential
+    store per event. For benchmarks: bounded iteration counts
+    and a natural "after" mean no concurrent thread is needed;
+    analysis runs after the loop with zero overlap with any
+    measurement.
+  - `RingRecorder` — raw deltas into an SPSC ring drained by a
+    collector thread. For instrumented apps with spare cores:
+    at 10M events/s the raw stream is ~80 MB/s, trivial against
+    within-machine memory bandwidth. Shipping buffers between
+    threads is zc-ring's domain — a natural composition, though
+    transport stays out of this crate.
+  - `HistogramRecorder` — in-place log-linear bucket increment.
+    For embedded / off-machine links where raw-sample bandwidth
+    is infeasible; the device ships fixed-size snapshots
+    instead.
+- **Analysis** — histogram build and percentile extraction.
+  Always off the measured path: after the loop (array), on the
+  collector thread (ring), or off-device (histogram snapshots).
+- **Presentation** — band-table rendering, formatting, tick→ns
+  display. `std`-only, operates on snapshots, never on the
+  measuring device.
+
+The organizing insight: **histogramming is compression, not
+analysis**. A log-linear histogram compresses the delta
+distribution, lossy only in bucket resolution, and it is the
+interchange format between phases wherever compression happens.
+The recorder choice just moves the compression point — after the
+run, on a collector core, or on the device — so analysis and
+presentation downstream are identical in all three modes.
+
+Consequences for the core:
+
+- **Snapshot/drain is a first-class operation** — wait-free for
+  the recorder (double-buffered counts or an epoch swap), so a
+  collector can harvest without blocking the hot path.
+- **A small versioned `no_std` wire format** for histogram
+  snapshots (bucket-layout parameters + counts) is the boundary
+  between this crate and the world.
+- **Transport is out of scope** — the probe produces snapshots
+  and raw rings; which thread, socket, or UART moves them is
+  the application's business.
+- Raw recorders retain **time ordering** that histograms
+  discard (correlating spikes with events, periodic patterns) —
+  a flight-recorder use distinct from distribution measurement,
+  and a reason the raw modes are first-class rather than merely
+  an optimization.
+
+### Outer loop as cross-check, not measurement
+
+For the benchmark harness (iiac-perf), summing the recorded
+inner deltas gives the duration directly, which demotes the
+outer-loop timing from "the measurement" to a cross-check worth
+keeping:
+
+- `sum(inner deltas)` — time actually spent in the measured op;
+  the right numerator for op throughput.
+- `outer − sum(inner)` — the per-iteration apparatus cost (tick
+  reads, the record store, loop overhead), *measured* for that
+  exact run. Today the copies estimate this with a separate
+  calibration pass (actor-x1's `overhead.rs`); this makes it a
+  free per-run self-check that calibration matches reality.
+
+### First experiment: recorder cost
+
+We think the raw array/ring store is cheaper per event than the
+histogram increment (a store vs. leading-zeros + shift + counter
+bump), but the histogram's table stays L1-resident while a raw
+array streams through cache — for long runs the eviction
+pressure could invert the ranking. Comparing recorder impls is
+the first experiment the consolidated tprobe should run against
+itself, folded into probe-overhead calibration.
+
 ## Sequencing: this crate before zc-msg-x1's messaging layer
 
 Chosen path (decision "B" in the originating discussion):
@@ -143,7 +229,7 @@ per-repo and not all at once:
 
 - **actor-x1** — active consumer and the probe's birthplace; a
   prime candidate to drop its vendored copy for this crate.
-- **iiac-perf** — active; today it *forks* rather than depends
+- **iiac-perf** — active; today it _forks_ rather than depends
   (uses `minstant` and its own band code). Confirm whether that
   fork is deliberate (independent evolution) or incidental before
   assuming it will depend on this crate.
@@ -164,6 +250,11 @@ continuity.
 
 - Which `no_std` histogram: an existing crate or a hand-rolled
   fixed-bucket table? Drives the core's shape.
+- Recorder trait shape: generic (static dispatch, monomorphized
+  per recorder) vs. an enum? Affects hot-path codegen and the
+  API every consumer sees.
+- Snapshot wire format: encoding, versioning, and how the
+  bucket-layout parameters travel with the counts.
 - Is iiac-perf's fork deliberate? Decides whether consolidation
   is three-repo (actor-x1 + zc-msg + iiac-perf depend) or two.
 - Where do pinning and `perf_event_open` live — in the `std`
