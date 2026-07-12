@@ -23,15 +23,22 @@ cycle-counter trait, recorders, `std`-gated reporting).
 - 0.1.0-0 prep: open cycle + chores design subsections for the
   three questions (done)
 - 0.1.0-1 docs: no_std core phase split + unwrap lints (done)
-- 0.1.0-2 decide `no_std` histogram — existing crate vs
+- 0.1.0-2 feat: seed no_std core + tp_pc parity example (done)
+  - ticks + ArrayRecorder + TProbe; `examples/tp_pc` is a
+    parity port of iiac-perf's `tp-pc` (same loop, channels,
+    band-table output)
+  - also ran the tp_pc comparison vs iiac-perf's `tp-pc`
+    (ABBA 300 s runs); cost/benefit findings recorded in a
+    chores design subsection
+- 0.1.0-3 run-length sweep (60 s / 6 s pairs) on a quiet host
+  (governor, SMT siblings, irqbalance, ssh session); extend
+  the comparison protocol with what's learned
+- 0.1.0-4 decide `no_std` histogram — existing crate vs
   hand-rolled fixed-bucket table [[1]]
-- 0.1.0-3 confirm iiac-perf fork intent — deliberate (two-repo)
+- 0.1.0-5 confirm iiac-perf fork intent — deliberate (two-repo)
   vs incidental (three-repo consolidation) [[2]]
-- 0.1.0-4 place pinning / `perf_event_open` — this crate's `std`
+- 0.1.0-6 place pinning / `perf_event_open` — this crate's `std`
   feature vs a separate runner crate [[3]]
-- 0.1.0-5 seed the core from the existing copies per the
-  phase/recorder design (ticks, probe, recorder trait);
-  expand into a sub-cycle as it grows
 - 0.1.0 close-out and validation
 
 ## Todo

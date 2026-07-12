@@ -1,0 +1,5 @@
+# Tests are exempt from the unwrap/expect discipline (see
+# AGENTS.md > Code Conventions): panicking on setup failure is
+# correct test behavior.
+allow-unwrap-in-tests = true
+allow-expect-in-tests = true

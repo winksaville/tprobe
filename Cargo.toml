@@ -4,7 +4,7 @@
 # notes/design.md for the founding rationale.
 [package]
 name = "tprobe"
-version = "0.1.0-1"
+version = "0.1.0-2"
 edition = "2024"
 rust-version = "1.97"
 license = "MIT OR Apache-2.0"
@@ -22,3 +22,10 @@ unwrap_used = "warn"
 expect_used = "warn"
 
 [dependencies]
+
+# Used only by examples/tp_pc (analysis + presentation +
+# pinning live in the example, not the crate — Q1/Q3 in
+# notes/design.md are still open).
+[dev-dependencies]
+hdrhistogram = "7"
+core_affinity = "0.8"

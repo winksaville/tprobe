@@ -117,10 +117,23 @@ be a redesign toward a `no_std` core with an opt-in `std` layer:
   and optionally the pinning / `perf_event_open` counters, gated
   so a mainstream host build keeps everything and an embedded
   build gets just the core.
-- **Spans** — the span-style API exists in some copies
-  (`tprobe_span.rs` in zc-ring, `tprobe2.rs` in iiac-perf) and
-  not in actor-x1; fold in as an optional part of the core, same
-  `no_std` discipline.
+- **Spans** — dissolved, not folded in. The copies split
+  TProbe/TProbe2 (`tprobe2.rs` in iiac-perf, `tprobe_span.rs`
+  in zc-ring) because one histogrammed inline and one buffered
+  records; the Recorder split removes that reason. The span
+  API's `site_id` goes with it: TProbe2 kept one buffer and one
+  histogram for many sites, so its `site_id` was dead code
+  awaiting "per-site grouping" — which a probe per site (the
+  `&'static str` name is the site) gives for free. What might
+  return later, on the one probe type:
+  - a caller-held start token (`start_span() -> Span`,
+    `record_span(Span)`) for overlapping scopes on a single
+    probe — rare once probes are per-site; add when a consumer
+    needs it;
+  - time-ordered cross-site tracing — a future recorder
+    sample-type question (`(id, start, end)` trace records, the
+    flight-recorder use the Phases section notes), not a probe
+    question.
 
 ## Phases: collection, analysis, presentation
 
