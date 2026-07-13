@@ -60,7 +60,19 @@ struct Cfg {
     as_ticks: bool,
 }
 
-/// Parse CLI args. `Ok(None)` means `--help` was printed.
+/// One-line identity banner — name, crate version (the
+/// version-of-record, so ABBA output files self-identify the
+/// binary's commit), and a few words on what this is. Always
+/// the first output line, like iiac-perf's banner.
+fn banner() -> String {
+    format!(
+        "tp_pc {} — tprobe producer/consumer parity bench",
+        env!("CARGO_PKG_VERSION")
+    )
+}
+
+/// Parse CLI args. `Ok(None)` means `--help` or `-V` was
+/// printed and the process should exit successfully.
 fn parse_args(mut args: std::env::Args) -> Result<Option<Cfg>, String> {
     let mut cfg = Cfg {
         duration: 5.0,
@@ -108,13 +120,20 @@ fn parse_args(mut args: std::env::Args) -> Result<Option<Cfg>, String> {
                 cfg.decimals = d;
             }
             "--ticks" | "-t" => cfg.as_ticks = true,
+            "--version" | "-V" => {
+                println!("{}", banner());
+                return Ok(None);
+            }
             "--help" | "-h" => {
                 println!(
-                    "usage: tp_pc [-d|--duration F] [--pin A,B] [--cap N] \
-                     [--decimals N] [--ticks]\n\
+                    "{}\n\
+                     \n\
+                     usage: tp_pc [-d|--duration F] [--pin A,B] [--cap N] \
+                     [--decimals N] [--ticks] [-V]\n\
                      \n\
                      defaults: --duration 5.0, unpinned, --cap {DEFAULT_CAP} \
-                     (per thread), --decimals {DEFAULT_DECIMALS}"
+                     (per thread), --decimals {DEFAULT_DECIMALS}",
+                    banner()
                 );
                 return Ok(None);
             }
@@ -173,6 +192,7 @@ fn main() {
             std::process::exit(2);
         }
     };
+    println!("{}\n", banner());
     if let Err(msg) = ticks::check() {
         eprintln!("error: {msg}; refusing to run");
         std::process::exit(1);
