@@ -22,8 +22,10 @@ const BOUNDARY_NAMES: &[&str] = &[
 /// Render a band-table report for `hist`, interpreting stored
 /// values as hardware ticks. `kind` is the header label and
 /// `name` is the probe's name. `as_ticks=false` converts to ns;
-/// `true` keeps raw ticks.
-pub fn render(kind: &str, name: &str, hist: &Histogram<u64>, as_ticks: bool) {
+/// `true` keeps raw ticks. `decimals` sets the fractional digits
+/// on every time cell (counts stay integer), like iiac-perf's
+/// `--decimals`.
+pub fn render(kind: &str, name: &str, hist: &Histogram<u64>, as_ticks: bool, decimals: usize) {
     let sample_count = hist.len();
     println!("  {kind}: {name} [count={}]", fmt_commas(sample_count));
     if sample_count == 0 {
@@ -80,11 +82,11 @@ pub fn render(kind: &str, name: &str, hist: &Histogram<u64>, as_ticks: bool) {
         let range_raw = band_last[i] - band_first[i] + 1;
         rows.push(BandRow {
             label: format!("{}-{}", BOUNDARY_NAMES[i], BOUNDARY_NAMES[i + 1]),
-            first: fmt_commas_f64(conv(band_first[i]), 0),
-            last: fmt_commas_f64(conv(band_last[i]), 0),
-            range: fmt_commas_f64(conv(range_raw), 0),
+            first: fmt_commas_f64(conv(band_first[i]), decimals),
+            last: fmt_commas_f64(conv(band_last[i]), decimals),
+            range: fmt_commas_f64(conv(range_raw), decimals),
             count: fmt_commas(band_count[i]),
-            mean: fmt_commas_f64(conv_f(mean_val), 0),
+            mean: fmt_commas_f64(conv_f(mean_val), decimals),
         });
     }
 
@@ -135,13 +137,13 @@ pub fn render(kind: &str, name: &str, hist: &Histogram<u64>, as_ticks: bool) {
         "{INDENT}{:<label_w$} {:>skip$}{GAP}{:>mean_w$} {unit}",
         "mean",
         "",
-        fmt_commas_f64(conv_f(hist_mean), 0),
+        fmt_commas_f64(conv_f(hist_mean), decimals),
     );
     println!(
         "{INDENT}{:<label_w$} {:>skip$}{GAP}{:>mean_w$} {unit}",
         "stdev",
         "",
-        fmt_commas_f64(conv_f(hist.stdev()), 0),
+        fmt_commas_f64(conv_f(hist.stdev()), decimals),
     );
 
     let trim_count: u64 = band_count[..top_band_idx].iter().sum();
@@ -177,13 +179,13 @@ pub fn render(kind: &str, name: &str, hist: &Histogram<u64>, as_ticks: bool) {
             "{INDENT}{:<label_w$} {:>skip$}{GAP}{:>mean_w$} {unit}",
             "mean min-p99",
             "",
-            fmt_commas_f64(conv_f(trim_mean), 0),
+            fmt_commas_f64(conv_f(trim_mean), decimals),
         );
         println!(
             "{INDENT}{:<label_w$} {:>skip$}{GAP}{:>mean_w$} {unit}",
             "stdev min-p99",
             "",
-            fmt_commas_f64(conv_f(trim_stdev), 0),
+            fmt_commas_f64(conv_f(trim_stdev), decimals),
         );
     }
     println!();

@@ -59,6 +59,7 @@ cycle-counter trait, recorders, `std`-gated reporting).
   - new measurement host `r5-7600x` (Zen 4 7600X, single-CCX,
     192.168.1.218) verified reachable alongside the 3900x
 - 0.1.0-5 feat: match tp_pc flags to iiac-perf + --decimals
+  (done)
   - rename `--secs`→`-d/--duration`, `--cores`→`--pin`; add
     `--decimals` (0–3, default 1) mirroring iiac-perf; `--cap`
     stays (tp_pc-specific); tp-pc-cmp.sh updated to the

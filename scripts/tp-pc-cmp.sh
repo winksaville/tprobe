@@ -72,10 +72,10 @@ rate=220000
 cap=$((secs * rate))
 
 run_a() { echo "=== $1: iiac-perf tp-pc ($(date +%T)) ==="; "$IIAC" --no-inhibit tp-pc --duration "$secs" --pin "$cores"; }
-run_b() { echo "=== $1: tprobe tp_pc ($(date +%T)) ==="; "$TP" --secs "$secs" --cores "$cores" --cap "$cap"; }
+run_b() { echo "=== $1: tprobe tp_pc ($(date +%T)) ==="; "$TP" --duration "$secs" --pin "$cores" --cap "$cap"; }
 
 main() {
-    echo "=== config: host=$(hostname) mode=$mode secs=$secs npairs=${npairs:-} cores=$cores cap=$cap ==="
+    echo "=== config: host=$(uname -n) mode=$mode secs=$secs npairs=${npairs:-} cores=$cores cap=$cap ==="
     echo "=== WARMUP (discard): iiac-perf tp-pc 60s ($(date +%T)) ==="
     "$IIAC" --no-inhibit tp-pc --duration 60 --pin "$cores" > /dev/null 2>&1
 

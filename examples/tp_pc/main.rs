@@ -33,14 +33,29 @@ const HIST_HIGH: u64 = 1_000_000_000_000;
 /// Default per-thread delta capacity: 8 Mi samples (64 MiB).
 const DEFAULT_CAP: usize = 8 * 1024 * 1024;
 
-/// Parsed CLI configuration.
+/// Default decimal digits on the report's time columns,
+/// matching iiac-perf's `DEFAULT_DECIMALS`.
+const DEFAULT_DECIMALS: usize = 1;
+
+/// Inclusive upper bound on `--decimals`, matching iiac-perf's
+/// `DECIMALS_MAX` — more digits would be artifacts.
+const DECIMALS_MAX: usize = 3;
+
+/// Parsed CLI configuration. Flag spellings match iiac-perf's
+/// `tp-pc` where practical, so a back-to-back comparison run
+/// uses one set of arguments; `--cap` is tp_pc-specific (the
+/// raw-delta buffer has no iiac-perf counterpart).
 struct Cfg {
-    /// Measured run duration in seconds.
-    secs: f64,
-    /// Logical CPUs for (producer, consumer); `None` = unpinned.
-    cores: [Option<usize>; 2],
+    /// Measured run duration in seconds (`-d/--duration`).
+    duration: f64,
+    /// Logical CPUs for (producer, consumer) (`--pin`);
+    /// `None` = unpinned.
+    pin: [Option<usize>; 2],
     /// Per-thread delta-buffer capacity, in samples.
     cap: usize,
+    /// Decimal digits on the report's time columns
+    /// (0..=DECIMALS_MAX).
+    decimals: usize,
     /// Report raw ticks instead of nanoseconds.
     as_ticks: bool,
 }
@@ -48,27 +63,28 @@ struct Cfg {
 /// Parse CLI args. `Ok(None)` means `--help` was printed.
 fn parse_args(mut args: std::env::Args) -> Result<Option<Cfg>, String> {
     let mut cfg = Cfg {
-        secs: 5.0,
-        cores: [None, None],
+        duration: 5.0,
+        pin: [None, None],
         cap: DEFAULT_CAP,
+        decimals: DEFAULT_DECIMALS,
         as_ticks: false,
     };
     args.next(); // skip argv[0]
     while let Some(arg) = args.next() {
         match arg.as_str() {
-            "--secs" => {
-                let v = args.next().ok_or("--secs needs a value")?;
-                cfg.secs = v
+            "--duration" | "-d" => {
+                let v = args.next().ok_or("--duration needs a value")?;
+                cfg.duration = v
                     .parse::<f64>()
-                    .map_err(|e| format!("invalid --secs {v:?}: {e}"))?;
+                    .map_err(|e| format!("invalid --duration {v:?}: {e}"))?;
             }
-            "--cores" => {
-                let v = args.next().ok_or("--cores needs a value, e.g. 0,1")?;
+            "--pin" => {
+                let v = args.next().ok_or("--pin needs a value, e.g. 0,1")?;
                 let mut it = v.split(',');
                 let (Some(a), Some(b), None) = (it.next(), it.next(), it.next()) else {
-                    return Err(format!("--cores wants exactly two ids, got {v:?}"));
+                    return Err(format!("--pin wants exactly two ids, got {v:?}"));
                 };
-                cfg.cores = [
+                cfg.pin = [
                     Some(a.parse().map_err(|e| format!("invalid core {a:?}: {e}"))?),
                     Some(b.parse().map_err(|e| format!("invalid core {b:?}: {e}"))?),
                 ];
@@ -79,12 +95,26 @@ fn parse_args(mut args: std::env::Args) -> Result<Option<Cfg>, String> {
                     .parse::<usize>()
                     .map_err(|e| format!("invalid --cap {v:?}: {e}"))?;
             }
+            "--decimals" => {
+                let v = args.next().ok_or("--decimals needs a value")?;
+                let d = v
+                    .parse::<usize>()
+                    .map_err(|e| format!("invalid --decimals {v:?}: {e}"))?;
+                if d > DECIMALS_MAX {
+                    return Err(format!(
+                        "--decimals {d} exceeds the maximum of {DECIMALS_MAX}"
+                    ));
+                }
+                cfg.decimals = d;
+            }
             "--ticks" | "-t" => cfg.as_ticks = true,
             "--help" | "-h" => {
                 println!(
-                    "usage: tp_pc [--secs F] [--cores A,B] [--cap N] [--ticks]\n\
+                    "usage: tp_pc [-d|--duration F] [--pin A,B] [--cap N] \
+                     [--decimals N] [--ticks]\n\
                      \n\
-                     defaults: --secs 5.0, unpinned, --cap {DEFAULT_CAP} (per thread)"
+                     defaults: --duration 5.0, unpinned, --cap {DEFAULT_CAP} \
+                     (per thread), --decimals {DEFAULT_DECIMALS}"
                 );
                 return Ok(None);
             }
@@ -114,7 +144,7 @@ fn make_probe(name: &'static str, cap: usize) -> TProbe<ArrayRecorder<Vec<u64>>>
 /// Analysis + presentation, after the run: build the histogram
 /// the iiac-perf variant builds on the hot path, then render the
 /// identical band table.
-fn report(name: &str, rec: &ArrayRecorder<Vec<u64>>, as_ticks: bool) {
+fn report(name: &str, rec: &ArrayRecorder<Vec<u64>>, as_ticks: bool, decimals: usize) {
     #[allow(clippy::unwrap_used)]
     // OK: bounds are valid constants (1 ≤ low < high, sigfig 3 ≤ 5)
     let mut hist = Histogram::<u64>::new_with_bounds(1, HIST_HIGH, 3).unwrap();
@@ -123,7 +153,7 @@ fn report(name: &str, rec: &ArrayRecorder<Vec<u64>>, as_ticks: bool) {
         // OK: value clamped into the histogram's bounds
         hist.record(d.clamp(1, HIST_HIGH)).unwrap();
     }
-    band_table::render("tprobe", name, &hist, as_ticks);
+    band_table::render("tprobe", name, &hist, as_ticks, decimals);
     if rec.dropped() > 0 {
         println!(
             "    WARNING: {} deltas dropped (buffer full; raise --cap)",
@@ -133,7 +163,7 @@ fn report(name: &str, rec: &ArrayRecorder<Vec<u64>>, as_ticks: bool) {
 }
 
 /// Bench entry point: spawn the pinned producer/consumer pair,
-/// run for `--secs`, then analyze and report.
+/// run for `--duration`, then analyze and report.
 fn main() {
     let cfg = match parse_args(std::env::args()) {
         Ok(Some(cfg)) => cfg,
@@ -154,7 +184,7 @@ fn main() {
     let (resp_tx, resp_rx) = mpsc::channel::<u64>();
     let shutdown = Arc::new(AtomicBool::new(false));
 
-    let [producer_cpu, consumer_cpu] = cfg.cores;
+    let [producer_cpu, consumer_cpu] = cfg.pin;
     let cap = cfg.cap;
 
     let producer_shutdown = shutdown.clone();
@@ -193,7 +223,7 @@ fn main() {
         probe
     });
 
-    thread::sleep(Duration::from_secs_f64(cfg.secs));
+    thread::sleep(Duration::from_secs_f64(cfg.duration));
     shutdown.store(true, Ordering::Relaxed);
 
     #[allow(clippy::expect_used)]
@@ -205,16 +235,18 @@ fn main() {
 
     println!(
         "tp_pc (2 threads, tprobe ArrayRecorder) [duration={:.1}s]:",
-        cfg.secs
+        cfg.duration
     );
     report(
         producer_probe.name(),
         producer_probe.recorder(),
         cfg.as_ticks,
+        cfg.decimals,
     );
     report(
         consumer_probe.name(),
         consumer_probe.recorder(),
         cfg.as_ticks,
+        cfg.decimals,
     );
 }
