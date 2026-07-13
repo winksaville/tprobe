@@ -69,7 +69,8 @@ cycle-counter trait, recorders, `std`-gated reporting).
     line (the versioning.md Reporter surface — ABBA runs
     self-identify the binary's commit); `-V/--version` prints
     it and exits; `--help` leads with it
-- 0.1.0-7 docs: README Build & test + Run sections
+- 0.1.0-7 docs: README Build & test, Run, Install sections
+  (done)
 - 0.1.0-8 decide `no_std` histogram — existing crate vs
   hand-rolled fixed-bucket table [[1]]
 - 0.1.0-9 confirm iiac-perf fork intent — deliberate (two-repo)
