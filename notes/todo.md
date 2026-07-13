@@ -50,11 +50,25 @@ cycle-counter trait, recorders, `std`-gated reporting).
     symmetry + `kde-inhibit`, straggler guard, config header
     in output files, host-aware `--cap`; `scripts/ssh-3900x.sh`
     added (works from a normal shell and the bot sandbox)
-- 0.1.0-4 decide `no_std` histogram — existing crate vs
+- 0.1.0-4 chore: drop ssh driver scripts for unsandboxed ssh
+  (done)
+  - the bot sandbox now runs ssh outside the sandbox
+    (user-level `~/.claude/settings.json`: `excludedCommands`
+    `"ssh *"` + host-scoped allow rules), so plain
+    `ssh <host>` replaces the socat-proxy driver scripts
+  - new measurement host `r5-7600x` (Zen 4 7600X, single-CCX,
+    192.168.1.218) verified reachable alongside the 3900x
+- 0.1.0-5 feat: match tp_pc flags to iiac-perf + --decimals
+  - rename `--secs`→`-d/--duration`, `--cores`→`--pin`; add
+    `--decimals` (0–3, default 1) mirroring iiac-perf; `--cap`
+    stays (tp_pc-specific); tp-pc-cmp.sh updated to the
+    now-symmetric spellings
+- 0.1.0-6 docs: README Build & test + Run sections
+- 0.1.0-7 decide `no_std` histogram — existing crate vs
   hand-rolled fixed-bucket table [[1]]
-- 0.1.0-5 confirm iiac-perf fork intent — deliberate (two-repo)
+- 0.1.0-8 confirm iiac-perf fork intent — deliberate (two-repo)
   vs incidental (three-repo consolidation) [[2]]
-- 0.1.0-6 place pinning / `perf_event_open` — this crate's `std`
+- 0.1.0-9 place pinning / `perf_event_open` — this crate's `std`
   feature vs a separate runner crate [[3]]
 - 0.1.0 close-out and validation
 

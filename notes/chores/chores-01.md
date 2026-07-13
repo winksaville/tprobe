@@ -132,7 +132,8 @@ Producer-loop summary:
 {6 s, 60 s} × core pair {4,5 same-CCX; 2,3 cross-CCX}. Same
 box as rounds 1–2 — those ran from a local session *on* the
 3900x; round 3 drives it from fwlaptop over ssh
-([scripts/ssh-3900x.sh](../../scripts/ssh-3900x.sh)) with the
+(`scripts/ssh-3900x.sh`, since removed — the sandbox now runs
+ssh unsandboxed, so plain `ssh <host>` replaced it) with the
 box otherwise idle. Host: 3900x — Zen 2, four 3-core CCXs
 (16 MB L3 each; cpu2's L3 group is 0-2,12-14, cpu3's is
 3-5,15-17, so the rounds-1–2 pair 2,3 was cross-CCX all
