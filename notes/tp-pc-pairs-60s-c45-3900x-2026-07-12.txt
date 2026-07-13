@@ -1,0 +1,903 @@
+=== config: host=3900x mode=pairs secs=60 npairs=10 cores=4,5 cap=13200000 ===
+=== WARMUP (discard): iiac-perf tp-pc 60s (20:21:27) ===
+=== A1: iiac-perf tp-pc (20:22:27) ===
+iiac-perf 0.20.0 — Rust latency microbenchmark harness
+
+Calibration:
+  framing/sample      26.28 ns  (timer pair, two-point fit)
+  loop/iter            0.44 ns  (per inner-loop iteration)
+  cal pin           core 4 (from --pin)
+  bench pin         [4, 5] (2 slots, 2 unique CPUs)
+  sleep inhibit     disabled (--no-inhibit)
+  config            none (built-in defaults)
+
+tp-pc (2 threads, TProbe tick-only) [duration=60.0s]:
+  tprobe: producer loop [count=9,863,560]
+                  first          last         range           count     mean
+    min-p1          150 ns        571 ns        421 ns      108,246      525 ns
+    p1-p10          581 ns      5,602 ns      5,021 ns      878,318    4,839 ns
+    p10-p20       5,614 ns      6,045 ns        431 ns      969,258    5,962 ns
+    p20-p30       6,053 ns      6,074 ns         21 ns      973,039    6,065 ns
+    p30-p40       6,083 ns      6,095 ns         13 ns      982,792    6,089 ns
+    p40-p50       6,104 ns      6,112 ns          9 ns    1,037,250    6,108 ns
+    p50-p60       6,125 ns      6,133 ns          9 ns      915,200    6,129 ns
+    p60-p70       6,142 ns      6,176 ns         34 ns    1,072,976    6,155 ns
+    p70-p80       6,184 ns      6,323 ns        139 ns      959,623    6,252 ns
+    p80-p90       6,336 ns      6,804 ns        469 ns      979,033    6,436 ns
+    p90-p99       6,817 ns      7,475 ns        658 ns      890,334    7,016 ns
+    p99-max       7,487 ns    215,714 ns    208,227 ns       97,491    8,133 ns
+    mean                                                               6,067 ns
+    stdev                                                                966 ns
+    mean min-p99                                                       6,048 ns
+    stdev min-p99                                                        874 ns
+
+  tprobe: consumer loop [count=9,863,560]
+                  first          last         range           count     mean
+    min-p1           50 ns        551 ns        501 ns       98,142      506 ns
+    p1-p10          561 ns      5,614 ns      5,053 ns      888,539    4,803 ns
+    p10-p20       5,623 ns      6,032 ns        409 ns      925,620    5,951 ns
+    p20-p30       6,045 ns      6,074 ns         30 ns    1,168,130    6,061 ns
+    p30-p40       6,083 ns      6,095 ns         13 ns      931,926    6,089 ns
+    p40-p50       6,104 ns      6,112 ns          9 ns      970,479    6,108 ns
+    p50-p60       6,125 ns      6,133 ns          9 ns      867,201    6,129 ns
+    p60-p70       6,142 ns      6,176 ns         34 ns    1,060,579    6,156 ns
+    p70-p80       6,184 ns      6,315 ns        131 ns      964,295    6,241 ns
+    p80-p90       6,323 ns      6,817 ns        494 ns    1,001,533    6,443 ns
+    p90-p99       6,825 ns      7,475 ns        650 ns      889,125    7,016 ns
+    p99-max       7,487 ns    215,984 ns    208,497 ns       97,991    8,136 ns
+    mean                                                               6,067 ns
+    stdev                                                                963 ns
+    mean min-p99                                                       6,048 ns
+    stdev min-p99                                                        873 ns
+
+=== B1: tprobe tp_pc (20:23:28) ===
+tp_pc (2 threads, tprobe ArrayRecorder) [duration=60.0s]:
+  tprobe: producer loop [count=10,182,983]
+                  first          last         range           count     mean
+    min-p1          110 ns        250 ns        141 ns       98,050      206 ns
+    p1-p10          250 ns      5,370 ns      5,120 ns      912,706    3,389 ns
+    p10-p20       5,374 ns      5,982 ns        608 ns    1,035,522    5,627 ns
+    p20-p30       5,994 ns      6,045 ns         51 ns      914,489    6,026 ns
+    p30-p40       6,053 ns      6,074 ns         21 ns    1,268,433    6,064 ns
+    p40-p50       6,083 ns      6,095 ns         13 ns    1,051,535    6,089 ns
+    p50-p60       6,104 ns      6,112 ns          9 ns      969,110    6,108 ns
+    p60-p70       6,125 ns      6,142 ns         17 ns      964,119    6,132 ns
+    p70-p80       6,154 ns      6,294 ns        139 ns      950,352    6,207 ns
+    p80-p90       6,302 ns      6,846 ns        544 ns      996,148    6,398 ns
+    p90-p99       6,855 ns      7,445 ns        591 ns      920,890    7,001 ns
+    p99-max       7,454 ns    216,794 ns    209,341 ns      101,629    8,092 ns
+    mean                                                               5,882 ns
+    stdev                                                              1,311 ns
+    mean min-p99                                                       5,862 ns
+    stdev min-p99                                                      1,248 ns
+
+  tprobe: consumer loop [count=10,182,983]
+                  first          last         range           count     mean
+    min-p1           20 ns        210 ns        191 ns      102,900      172 ns
+    p1-p10          220 ns      5,382 ns      5,163 ns      919,395    3,435 ns
+    p10-p20       5,391 ns      5,973 ns        582 ns      987,762    5,622 ns
+    p20-p30       5,982 ns      6,045 ns         64 ns    1,087,131    6,021 ns
+    p30-p40       6,053 ns      6,062 ns          9 ns      772,672    6,058 ns
+    p40-p50       6,074 ns      6,091 ns         17 ns    1,046,730    6,080 ns
+    p50-p60       6,095 ns      6,112 ns         17 ns    1,318,670    6,104 ns
+    p60-p70       6,125 ns      6,142 ns         17 ns      935,031    6,132 ns
+    p70-p80       6,154 ns      6,273 ns        118 ns      975,370    6,199 ns
+    p80-p90       6,285 ns      6,846 ns        561 ns    1,014,935    6,407 ns
+    p90-p99       6,855 ns      7,445 ns        591 ns      920,873    7,000 ns
+    p99-max       7,454 ns    730,028 ns    722,575 ns      101,514    8,103 ns
+    mean                                                               5,883 ns
+    stdev                                                              1,330 ns
+    mean min-p99                                                       5,862 ns
+    stdev min-p99                                                      1,248 ns
+
+=== A2: iiac-perf tp-pc (20:24:28) ===
+iiac-perf 0.20.0 — Rust latency microbenchmark harness
+
+Calibration:
+  framing/sample      26.28 ns  (timer pair, two-point fit)
+  loop/iter            0.44 ns  (per inner-loop iteration)
+  cal pin           core 4 (from --pin)
+  bench pin         [4, 5] (2 slots, 2 unique CPUs)
+  sleep inhibit     disabled (--no-inhibit)
+  config            none (built-in defaults)
+
+tp-pc (2 threads, TProbe tick-only) [duration=60.0s]:
+  tprobe: producer loop [count=9,830,214]
+                  first          last         range           count     mean
+    min-p1          130 ns        581 ns        451 ns       99,346      525 ns
+    p1-p10          591 ns      5,602 ns      5,011 ns      881,705    4,940 ns
+    p10-p20       5,614 ns      6,045 ns        431 ns      960,721    5,962 ns
+    p20-p30       6,053 ns      6,074 ns         21 ns      967,731    6,065 ns
+    p30-p40       6,083 ns      6,095 ns         13 ns      949,620    6,089 ns
+    p40-p50       6,104 ns      6,112 ns          9 ns    1,012,274    6,108 ns
+    p50-p60       6,125 ns      6,133 ns          9 ns      903,309    6,129 ns
+    p60-p70       6,142 ns      6,176 ns         34 ns    1,088,356    6,156 ns
+    p70-p80       6,184 ns      6,323 ns        139 ns      963,725    6,249 ns
+    p80-p90       6,336 ns      6,884 ns        549 ns    1,024,251    6,479 ns
+    p90-p99       6,897 ns      7,487 ns        591 ns      880,631    7,029 ns
+    p99-max       7,496 ns    267,956 ns    260,460 ns       98,545    8,180 ns
+    mean                                                               6,088 ns
+    stdev                                                                937 ns
+    mean min-p99                                                       6,068 ns
+    stdev min-p99                                                        830 ns
+
+  tprobe: consumer loop [count=9,830,214]
+                  first          last         range           count     mean
+    min-p1           30 ns        591 ns        562 ns      100,145      515 ns
+    p1-p10          601 ns      5,631 ns      5,030 ns      884,339    4,965 ns
+    p10-p20       5,644 ns      6,032 ns        388 ns      923,215    5,953 ns
+    p20-p30       6,045 ns      6,074 ns         30 ns    1,168,268    6,061 ns
+    p30-p40       6,083 ns      6,095 ns         13 ns      905,328    6,089 ns
+    p40-p50       6,104 ns      6,112 ns          9 ns      952,931    6,108 ns
+    p50-p60       6,125 ns      6,133 ns          9 ns      857,721    6,129 ns
+    p60-p70       6,142 ns      6,176 ns         34 ns    1,052,089    6,156 ns
+    p70-p80       6,184 ns      6,336 ns        152 ns    1,042,260    6,249 ns
+    p80-p90       6,344 ns      6,884 ns        540 ns      960,463    6,494 ns
+    p90-p99       6,897 ns      7,487 ns        591 ns      885,509    7,028 ns
+    p99-max       7,496 ns    271,735 ns    264,240 ns       97,946    8,160 ns
+    mean                                                               6,088 ns
+    stdev                                                                934 ns
+    mean min-p99                                                       6,068 ns
+    stdev min-p99                                                        828 ns
+
+=== B2: tprobe tp_pc (20:25:28) ===
+tp_pc (2 threads, tprobe ArrayRecorder) [duration=60.0s]:
+  tprobe: producer loop [count=10,384,273]
+                  first            last         range           count     mean
+    min-p1          110 ns          220 ns        110 ns      105,341      198 ns
+    p1-p10          220 ns        5,281 ns      5,061 ns      932,359    2,503 ns
+    p10-p20       5,290 ns        5,623 ns        334 ns    1,041,638    5,435 ns
+    p20-p30       5,631 ns        6,024 ns        393 ns    1,070,963    5,948 ns
+    p30-p40       6,032 ns        6,053 ns         21 ns    1,050,963    6,045 ns
+    p40-p50       6,062 ns        6,074 ns         13 ns    1,026,237    6,068 ns
+    p50-p60       6,083 ns        6,095 ns         13 ns    1,004,263    6,089 ns
+    p60-p70       6,104 ns        6,125 ns         21 ns    1,036,170    6,112 ns
+    p70-p80       6,133 ns        6,285 ns        152 ns    1,033,998    6,191 ns
+    p80-p90       6,294 ns        6,897 ns        604 ns    1,043,419    6,414 ns
+    p90-p99       6,905 ns        7,437 ns        532 ns      933,471    7,025 ns
+    p99-max       7,445 ns    1,000,012 ns    992,567 ns      105,451    8,069 ns
+    mean                                                                 5,768 ns
+    stdev                                                                1,522 ns
+    mean min-p99                                                         5,746 ns
+    stdev min-p99                                                        1,433 ns
+
+  tprobe: consumer loop [count=10,384,273]
+                  first          last         range           count     mean
+    min-p1           10 ns        180 ns        170 ns       99,602      156 ns
+    p1-p10          180 ns      5,294 ns      5,114 ns      945,102    2,515 ns
+    p10-p20       5,302 ns      5,602 ns        300 ns    1,031,651    5,440 ns
+    p20-p30       5,610 ns      6,015 ns        405 ns      994,915    5,934 ns
+    p30-p40       6,024 ns      6,053 ns         30 ns    1,201,604    6,042 ns
+    p40-p50       6,062 ns      6,074 ns         13 ns      964,773    6,068 ns
+    p50-p60       6,083 ns      6,095 ns         13 ns      955,829    6,089 ns
+    p60-p70       6,104 ns      6,125 ns         21 ns    1,024,427    6,112 ns
+    p70-p80       6,133 ns      6,264 ns        131 ns    1,067,143    6,181 ns
+    p80-p90       6,273 ns      6,897 ns        625 ns    1,057,881    6,419 ns
+    p90-p99       6,905 ns      7,437 ns        532 ns      936,079    7,025 ns
+    p99-max       7,445 ns    243,793 ns    236,348 ns      105,267    8,086 ns
+    mean                                                               5,768 ns
+    stdev                                                              1,490 ns
+    mean min-p99                                                       5,746 ns
+    stdev min-p99                                                      1,433 ns
+
+=== A3: iiac-perf tp-pc (20:26:28) ===
+iiac-perf 0.20.0 — Rust latency microbenchmark harness
+
+Calibration:
+  framing/sample      26.28 ns  (timer pair, two-point fit)
+  loop/iter            0.44 ns  (per inner-loop iteration)
+  cal pin           core 4 (from --pin)
+  bench pin         [4, 5] (2 slots, 2 unique CPUs)
+  sleep inhibit     disabled (--no-inhibit)
+  config            none (built-in defaults)
+
+tp-pc (2 threads, TProbe tick-only) [duration=60.0s]:
+  tprobe: producer loop [count=9,775,690]
+                  first          last         range           count     mean
+    min-p1          150 ns        611 ns        461 ns       97,124      539 ns
+    p1-p10          621 ns      5,733 ns      5,111 ns      883,960    5,241 ns
+    p10-p20       5,741 ns      6,045 ns        304 ns      872,321    6,002 ns
+    p20-p30       6,053 ns      6,074 ns         21 ns      911,713    6,065 ns
+    p30-p40       6,083 ns      6,095 ns         13 ns      930,122    6,089 ns
+    p40-p50       6,104 ns      6,112 ns          9 ns    1,015,009    6,108 ns
+    p50-p60       6,125 ns      6,142 ns         17 ns    1,305,941    6,133 ns
+    p60-p70       6,154 ns      6,176 ns         21 ns      756,413    6,163 ns
+    p70-p80       6,184 ns      6,336 ns        152 ns    1,043,446    6,254 ns
+    p80-p90       6,344 ns      6,884 ns        540 ns      983,340    6,470 ns
+    p90-p99       6,897 ns      7,466 ns        570 ns      878,077    7,052 ns
+    p99-max       7,475 ns    221,384 ns    213,909 ns       98,224    8,112 ns
+    mean                                                               6,122 ns
+    stdev                                                                838 ns
+    mean min-p99                                                       6,103 ns
+    stdev min-p99                                                        731 ns
+
+  tprobe: consumer loop [count=9,775,690]
+                  first          last         range           count     mean
+    min-p1           40 ns        641 ns        602 ns       96,740      539 ns
+    p1-p10          651 ns      5,733 ns      5,081 ns      879,938    5,248 ns
+    p10-p20       5,741 ns      6,045 ns        304 ns    1,004,547    6,000 ns
+    p20-p30       6,053 ns      6,074 ns         21 ns      919,824    6,065 ns
+    p30-p40       6,083 ns      6,095 ns         13 ns      881,273    6,089 ns
+    p40-p50       6,104 ns      6,112 ns          9 ns      950,412    6,108 ns
+    p50-p60       6,125 ns      6,142 ns         17 ns    1,236,635    6,133 ns
+    p60-p70       6,154 ns      6,184 ns         30 ns      907,390    6,166 ns
+    p70-p80       6,192 ns      6,323 ns        131 ns      923,793    6,252 ns
+    p80-p90       6,336 ns      6,884 ns        549 ns      995,673    6,476 ns
+    p90-p99       6,897 ns      7,466 ns        570 ns      880,891    7,051 ns
+    p99-max       7,475 ns    218,414 ns    210,940 ns       98,574    8,106 ns
+    mean                                                               6,121 ns
+    stdev                                                                835 ns
+    mean min-p99                                                       6,103 ns
+    stdev min-p99                                                        729 ns
+
+=== B3: tprobe tp_pc (20:27:29) ===
+tp_pc (2 threads, tprobe ArrayRecorder) [duration=60.0s]:
+  tprobe: producer loop [count=10,253,385]
+                  first          last         range           count     mean
+    min-p1          100 ns        220 ns        120 ns      101,819      198 ns
+    p1-p10          220 ns      5,340 ns      5,120 ns      919,602    3,067 ns
+    p10-p20       5,353 ns      5,952 ns        599 ns    1,018,277    5,543 ns
+    p20-p30       5,965 ns      6,032 ns         68 ns      899,758    6,008 ns
+    p30-p40       6,045 ns      6,062 ns         17 ns    1,122,186    6,054 ns
+    p40-p50       6,074 ns      6,091 ns         17 ns    1,051,179    6,079 ns
+    p50-p60       6,095 ns      6,104 ns          9 ns      881,047    6,100 ns
+    p60-p70       6,112 ns      6,142 ns         30 ns    1,259,329    6,126 ns
+    p70-p80       6,154 ns      6,294 ns        139 ns      914,199    6,210 ns
+    p80-p90       6,302 ns      6,846 ns        544 ns    1,064,183    6,402 ns
+    p90-p99       6,855 ns      7,445 ns        591 ns      920,032    7,001 ns
+    p99-max       7,454 ns    225,164 ns    217,711 ns      101,774    8,078 ns
+    mean                                                               5,842 ns
+    stdev                                                              1,382 ns
+    mean min-p99                                                       5,821 ns
+    stdev min-p99                                                      1,321 ns
+
+  tprobe: consumer loop [count=10,253,385]
+                  first          last         range           count     mean
+    min-p1           20 ns        190 ns        171 ns      104,790      163 ns
+    p1-p10          200 ns      5,353 ns      5,153 ns      926,690    3,106 ns
+    p10-p20       5,361 ns      5,952 ns        591 ns    1,031,270    5,558 ns
+    p20-p30       5,965 ns      6,032 ns         68 ns      966,312    6,007 ns
+    p30-p40       6,045 ns      6,062 ns         17 ns    1,086,856    6,054 ns
+    p40-p50       6,074 ns      6,091 ns         17 ns    1,014,136    6,080 ns
+    p50-p60       6,095 ns      6,112 ns         17 ns    1,213,715    6,104 ns
+    p60-p70       6,125 ns      6,142 ns         17 ns      847,497    6,132 ns
+    p70-p80       6,154 ns      6,285 ns        131 ns    1,038,326    6,207 ns
+    p80-p90       6,294 ns      6,846 ns        553 ns    1,002,044    6,413 ns
+    p90-p99       6,855 ns      7,445 ns        591 ns      920,239    7,000 ns
+    p99-max       7,454 ns    771,067 ns    763,613 ns      101,510    8,114 ns
+    mean                                                               5,842 ns
+    stdev                                                              1,402 ns
+    mean min-p99                                                       5,821 ns
+    stdev min-p99                                                      1,321 ns
+
+=== A4: iiac-perf tp-pc (20:28:29) ===
+iiac-perf 0.20.0 — Rust latency microbenchmark harness
+
+Calibration:
+  framing/sample      25.78 ns  (timer pair, two-point fit)
+  loop/iter            0.44 ns  (per inner-loop iteration)
+  cal pin           core 4 (from --pin)
+  bench pin         [4, 5] (2 slots, 2 unique CPUs)
+  sleep inhibit     disabled (--no-inhibit)
+  config            none (built-in defaults)
+
+tp-pc (2 threads, TProbe tick-only) [duration=60.0s]:
+  tprobe: producer loop [count=9,843,321]
+                  first          last         range           count     mean
+    min-p1          150 ns        581 ns        431 ns       99,282      527 ns
+    p1-p10          591 ns      5,631 ns      5,040 ns      886,756    4,920 ns
+    p10-p20       5,644 ns      6,032 ns        388 ns      935,817    5,960 ns
+    p20-p30       6,045 ns      6,062 ns         17 ns      885,318    6,055 ns
+    p30-p40       6,074 ns      6,083 ns          9 ns      947,027    6,079 ns
+    p40-p50       6,095 ns      6,104 ns          9 ns    1,026,091    6,100 ns
+    p50-p60       6,112 ns      6,133 ns         21 ns    1,289,660    6,123 ns
+    p60-p70       6,142 ns      6,176 ns         34 ns      858,012    6,155 ns
+    p70-p80       6,184 ns      6,336 ns        152 ns      970,665    6,265 ns
+    p80-p90       6,344 ns      6,884 ns        540 ns      963,585    6,474 ns
+    p90-p99       6,897 ns      7,458 ns        561 ns      881,605    7,019 ns
+    p99-max       7,466 ns    399,571 ns    392,105 ns       99,503    8,107 ns
+    mean                                                               6,080 ns
+    stdev                                                                942 ns
+    mean min-p99                                                       6,061 ns
+    stdev min-p99                                                        835 ns
+
+  tprobe: consumer loop [count=9,843,321]
+                  first          last         range           count     mean
+    min-p1           40 ns        591 ns        552 ns       99,571      516 ns
+    p1-p10          601 ns      5,631 ns      5,030 ns      884,297    4,931 ns
+    p10-p20       5,644 ns      6,032 ns        388 ns    1,067,321    5,963 ns
+    p20-p30       6,045 ns      6,062 ns         17 ns      883,032    6,055 ns
+    p30-p40       6,074 ns      6,083 ns          9 ns      889,118    6,079 ns
+    p40-p50       6,095 ns      6,104 ns          9 ns      959,897    6,100 ns
+    p50-p60       6,112 ns      6,133 ns         21 ns    1,232,621    6,123 ns
+    p60-p70       6,142 ns      6,176 ns         34 ns      882,160    6,155 ns
+    p70-p80       6,184 ns      6,323 ns        139 ns      957,126    6,249 ns
+    p80-p90       6,336 ns      6,884 ns        549 ns    1,002,588    6,475 ns
+    p90-p99       6,897 ns      7,466 ns        570 ns      888,104    7,019 ns
+    p99-max       7,475 ns    401,461 ns    393,986 ns       97,486    8,135 ns
+    mean                                                               6,079 ns
+    stdev                                                                940 ns
+    mean min-p99                                                       6,061 ns
+    stdev min-p99                                                        834 ns
+
+=== B4: tprobe tp_pc (20:29:30) ===
+tp_pc (2 threads, tprobe ArrayRecorder) [duration=60.0s]:
+  tprobe: producer loop [count=10,289,479]
+                  first          last         range           count     mean
+    min-p1          110 ns        250 ns        140 ns      102,851      210 ns
+    p1-p10          250 ns      5,302 ns      5,052 ns      920,321    2,788 ns
+    p10-p20       5,311 ns      5,935 ns        625 ns    1,034,673    5,500 ns
+    p20-p30       5,944 ns      6,045 ns        102 ns    1,127,693    6,013 ns
+    p30-p40       6,053 ns      6,062 ns          9 ns      753,921    6,058 ns
+    p40-p50       6,074 ns      6,091 ns         17 ns    1,003,853    6,079 ns
+    p50-p60       6,095 ns      6,112 ns         17 ns    1,283,087    6,104 ns
+    p60-p70       6,125 ns      6,142 ns         17 ns      903,716    6,132 ns
+    p70-p80       6,154 ns      6,302 ns        148 ns    1,116,096    6,216 ns
+    p80-p90       6,315 ns      6,905 ns        591 ns    1,016,381    6,436 ns
+    p90-p99       6,914 ns      7,454 ns        540 ns      922,816    7,036 ns
+    p99-max       7,458 ns    719,770 ns    712,312 ns      104,071    8,090 ns
+    mean                                                               5,821 ns
+    stdev                                                              1,459 ns
+    mean min-p99                                                       5,800 ns
+    stdev min-p99                                                      1,379 ns
+
+  tprobe: consumer loop [count=10,289,479]
+                  first          last         range           count     mean
+    min-p1           20 ns        210 ns        191 ns      106,194      171 ns
+    p1-p10          220 ns      5,311 ns      5,091 ns      924,904    2,825 ns
+    p10-p20       5,323 ns      5,914 ns        591 ns    1,022,237    5,505 ns
+    p20-p30       5,922 ns      6,032 ns        110 ns      983,311    6,002 ns
+    p30-p40       6,045 ns      6,062 ns         17 ns      994,788    6,054 ns
+    p40-p50       6,074 ns      6,091 ns         17 ns      965,874    6,080 ns
+    p50-p60       6,095 ns      6,112 ns         17 ns    1,203,602    6,104 ns
+    p60-p70       6,125 ns      6,154 ns         30 ns    1,071,316    6,136 ns
+    p70-p80       6,163 ns      6,294 ns        131 ns      981,035    6,220 ns
+    p80-p90       6,302 ns      6,905 ns        604 ns    1,006,991    6,444 ns
+    p90-p99       6,914 ns      7,458 ns        544 ns      927,574    7,037 ns
+    p99-max       7,466 ns    398,762 ns    391,296 ns      101,653    8,114 ns
+    mean                                                               5,822 ns
+    stdev                                                              1,441 ns
+    mean min-p99                                                       5,800 ns
+    stdev min-p99                                                      1,379 ns
+
+=== A5: iiac-perf tp-pc (20:30:30) ===
+iiac-perf 0.20.0 — Rust latency microbenchmark harness
+
+Calibration:
+  framing/sample      26.28 ns  (timer pair, two-point fit)
+  loop/iter            0.44 ns  (per inner-loop iteration)
+  cal pin           core 4 (from --pin)
+  bench pin         [4, 5] (2 slots, 2 unique CPUs)
+  sleep inhibit     disabled (--no-inhibit)
+  config            none (built-in defaults)
+
+tp-pc (2 threads, TProbe tick-only) [duration=60.0s]:
+  tprobe: producer loop [count=9,836,319]
+                  first          last         range           count     mean
+    min-p1          150 ns        571 ns        421 ns      105,229      512 ns
+    p1-p10          581 ns      5,513 ns      4,932 ns      881,366    4,936 ns
+    p10-p20       5,522 ns      6,045 ns        523 ns    1,023,577    5,950 ns
+    p20-p30       6,053 ns      6,074 ns         21 ns      968,994    6,065 ns
+    p30-p40       6,083 ns      6,095 ns         13 ns      984,352    6,089 ns
+    p40-p50       6,104 ns      6,112 ns          9 ns    1,028,032    6,108 ns
+    p50-p60       6,125 ns      6,133 ns          9 ns      887,752    6,129 ns
+    p60-p70       6,142 ns      6,176 ns         34 ns    1,007,760    6,155 ns
+    p70-p80       6,184 ns      6,336 ns        152 ns      975,868    6,260 ns
+    p80-p90       6,344 ns      6,905 ns        561 ns      987,376    6,506 ns
+    p90-p99       6,914 ns      7,475 ns        561 ns      886,615    7,029 ns
+    p99-max       7,488 ns    227,189 ns    219,702 ns       99,398    8,124 ns
+    mean                                                               6,084 ns
+    stdev                                                                939 ns
+    mean min-p99                                                       6,065 ns
+    stdev min-p99                                                        843 ns
+
+  tprobe: consumer loop [count=9,836,319]
+                  first          last         range           count     mean
+    min-p1           60 ns        551 ns        491 ns       97,577      499 ns
+    p1-p10          561 ns      5,551 ns      4,990 ns      885,847    4,910 ns
+    p10-p20       5,564 ns      6,032 ns        469 ns      989,675    5,940 ns
+    p20-p30       6,045 ns      6,074 ns         30 ns    1,157,119    6,061 ns
+    p30-p40       6,083 ns      6,095 ns         13 ns      924,558    6,089 ns
+    p40-p50       6,104 ns      6,112 ns          9 ns      956,987    6,108 ns
+    p50-p60       6,125 ns      6,133 ns          9 ns      838,752    6,129 ns
+    p60-p70       6,142 ns      6,176 ns         34 ns    1,003,296    6,156 ns
+    p70-p80       6,184 ns      6,336 ns        152 ns    1,032,000    6,253 ns
+    p80-p90       6,344 ns      6,905 ns        561 ns      958,439    6,514 ns
+    p90-p99       6,914 ns      7,488 ns        574 ns      895,092    7,029 ns
+    p99-max       7,496 ns    225,164 ns    217,669 ns       96,977    8,134 ns
+    mean                                                               6,084 ns
+    stdev                                                                934 ns
+    mean min-p99                                                       6,065 ns
+    stdev min-p99                                                        841 ns
+
+=== B5: tprobe tp_pc (20:31:30) ===
+tp_pc (2 threads, tprobe ArrayRecorder) [duration=60.0s]:
+  tprobe: producer loop [count=10,276,720]
+                  first          last         range           count     mean
+    min-p1          100 ns        220 ns        120 ns      104,548      201 ns
+    p1-p10          230 ns      5,323 ns      5,094 ns      919,086    2,828 ns
+    p10-p20       5,332 ns      5,965 ns        633 ns    1,005,170    5,557 ns
+    p20-p30       5,973 ns      6,045 ns         72 ns    1,122,669    6,018 ns
+    p30-p40       6,053 ns      6,062 ns          9 ns      815,008    6,058 ns
+    p40-p50       6,074 ns      6,091 ns         17 ns    1,107,630    6,080 ns
+    p50-p60       6,095 ns      6,104 ns          9 ns      940,157    6,100 ns
+    p60-p70       6,112 ns      6,133 ns         21 ns    1,075,059    6,122 ns
+    p70-p80       6,142 ns      6,302 ns        161 ns    1,162,823    6,205 ns
+    p80-p90       6,315 ns      6,905 ns        591 ns      999,739    6,444 ns
+    p90-p99       6,914 ns      7,445 ns        532 ns      922,922    7,028 ns
+    p99-max       7,454 ns    646,336 ns    638,883 ns      101,909    8,085 ns
+    mean                                                               5,829 ns
+    stdev                                                              1,448 ns
+    mean min-p99                                                       5,808 ns
+    stdev min-p99                                                      1,373 ns
+
+  tprobe: consumer loop [count=10,276,720]
+                  first          last         range           count     mean
+    min-p1           20 ns        200 ns        180 ns      102,962      161 ns
+    p1-p10          200 ns      5,332 ns      5,132 ns      926,885    2,846 ns
+    p10-p20       5,340 ns      5,965 ns        625 ns    1,047,197    5,582 ns
+    p20-p30       5,973 ns      6,032 ns         59 ns      949,764    6,009 ns
+    p30-p40       6,045 ns      6,062 ns         17 ns    1,046,796    6,054 ns
+    p40-p50       6,074 ns      6,091 ns         17 ns    1,045,779    6,080 ns
+    p50-p60       6,095 ns      6,104 ns          9 ns      857,351    6,100 ns
+    p60-p70       6,112 ns      6,142 ns         30 ns    1,254,905    6,126 ns
+    p70-p80       6,154 ns      6,285 ns        131 ns      983,526    6,207 ns
+    p80-p90       6,294 ns      6,905 ns        612 ns    1,038,785    6,448 ns
+    p90-p99       6,914 ns      7,445 ns        532 ns      920,049    7,028 ns
+    p99-max       7,454 ns    231,104 ns    223,651 ns      102,721    8,087 ns
+    mean                                                               5,829 ns
+    stdev                                                              1,432 ns
+    mean min-p99                                                       5,808 ns
+    stdev min-p99                                                      1,373 ns
+
+=== A6: iiac-perf tp-pc (20:32:30) ===
+iiac-perf 0.20.0 — Rust latency microbenchmark harness
+
+Calibration:
+  framing/sample      26.28 ns  (timer pair, two-point fit)
+  loop/iter            0.44 ns  (per inner-loop iteration)
+  cal pin           core 4 (from --pin)
+  bench pin         [4, 5] (2 slots, 2 unique CPUs)
+  sleep inhibit     disabled (--no-inhibit)
+  config            none (built-in defaults)
+
+tp-pc (2 threads, TProbe tick-only) [duration=60.0s]:
+  tprobe: producer loop [count=9,849,990]
+                  first          last         range           count     mean
+    min-p1          140 ns        561 ns        421 ns       93,064      478 ns
+    p1-p10          571 ns      5,543 ns      4,972 ns      891,039    4,861 ns
+    p10-p20       5,551 ns      6,032 ns        481 ns      905,477    5,942 ns
+    p20-p30       6,045 ns      6,074 ns         30 ns    1,186,550    6,062 ns
+    p30-p40       6,083 ns      6,095 ns         13 ns    1,001,111    6,089 ns
+    p40-p50       6,104 ns      6,112 ns          9 ns    1,044,691    6,108 ns
+    p50-p60       6,125 ns      6,133 ns          9 ns      885,454    6,129 ns
+    p60-p70       6,142 ns      6,163 ns         21 ns      824,358    6,151 ns
+    p70-p80       6,176 ns      6,323 ns        148 ns    1,017,904    6,242 ns
+    p80-p90       6,336 ns      6,863 ns        528 ns    1,015,091    6,454 ns
+    p90-p99       6,876 ns      7,475 ns        599 ns      887,860    7,023 ns
+    p99-max       7,487 ns    376,893 ns    369,406 ns       97,391    8,125 ns
+    mean                                                               6,075 ns
+    stdev                                                                950 ns
+    mean min-p99                                                       6,056 ns
+    stdev min-p99                                                        847 ns
+
+  tprobe: consumer loop [count=9,849,990]
+                  first          last         range           count     mean
+    min-p1           50 ns        551 ns        501 ns      108,983      489 ns
+    p1-p10          561 ns      5,564 ns      5,003 ns      877,468    4,950 ns
+    p10-p20       5,572 ns      6,032 ns        460 ns    1,005,630    5,947 ns
+    p20-p30       6,045 ns      6,062 ns         17 ns      772,159    6,055 ns
+    p30-p40       6,074 ns      6,095 ns         21 ns    1,329,841    6,085 ns
+    p40-p50       6,104 ns      6,112 ns          9 ns      980,906    6,108 ns
+    p50-p60       6,125 ns      6,133 ns          9 ns      853,949    6,129 ns
+    p60-p70       6,142 ns      6,176 ns         34 ns    1,004,198    6,155 ns
+    p70-p80       6,184 ns      6,315 ns        131 ns      959,255    6,243 ns
+    p80-p90       6,323 ns      6,863 ns        540 ns      968,960    6,467 ns
+    p90-p99       6,876 ns      7,475 ns        599 ns      889,462    7,023 ns
+    p99-max       7,487 ns    375,543 ns    368,056 ns       99,179    8,133 ns
+    mean                                                               6,075 ns
+    stdev                                                                947 ns
+    mean min-p99                                                       6,056 ns
+    stdev min-p99                                                        846 ns
+
+=== B6: tprobe tp_pc (20:33:31) ===
+tp_pc (2 threads, tprobe ArrayRecorder) [duration=60.0s]:
+  tprobe: producer loop [count=10,206,836]
+                  first          last         range           count     mean
+    min-p1          100 ns        250 ns        150 ns      100,868      208 ns
+    p1-p10          250 ns      5,340 ns      5,090 ns      913,638    3,163 ns
+    p10-p20       5,353 ns      5,973 ns        620 ns    1,011,817    5,591 ns
+    p20-p30       5,982 ns      6,045 ns         64 ns      981,728    6,022 ns
+    p30-p40       6,053 ns      6,074 ns         21 ns    1,242,831    6,064 ns
+    p40-p50       6,083 ns      6,095 ns         13 ns      986,155    6,089 ns
+    p50-p60       6,104 ns      6,112 ns          9 ns      892,434    6,108 ns
+    p60-p70       6,125 ns      6,142 ns         17 ns      920,502    6,132 ns
+    p70-p80       6,154 ns      6,302 ns        148 ns    1,127,600    6,214 ns
+    p80-p90       6,315 ns      6,914 ns        599 ns    1,009,777    6,445 ns
+    p90-p99       6,926 ns      7,458 ns        532 ns      918,500    7,041 ns
+    p99-max       7,466 ns    841,263 ns    833,797 ns      100,986    8,108 ns
+    mean                                                               5,869 ns
+    stdev                                                              1,392 ns
+    mean min-p99                                                       5,848 ns
+    stdev min-p99                                                      1,304 ns
+
+  tprobe: consumer loop [count=10,206,836]
+                  first          last         range           count     mean
+    min-p1           20 ns        210 ns        190 ns       97,977      168 ns
+    p1-p10          210 ns      5,353 ns      5,143 ns      917,244    3,162 ns
+    p10-p20       5,361 ns      5,973 ns        612 ns    1,062,442    5,614 ns
+    p20-p30       5,982 ns      6,045 ns         64 ns    1,077,482    6,021 ns
+    p30-p40       6,053 ns      6,062 ns          9 ns      735,285    6,058 ns
+    p40-p50       6,074 ns      6,095 ns         21 ns    1,355,872    6,084 ns
+    p50-p60       6,104 ns      6,112 ns          9 ns      841,479    6,108 ns
+    p60-p70       6,125 ns      6,154 ns         30 ns    1,097,478    6,136 ns
+    p70-p80       6,163 ns      6,294 ns        131 ns    1,003,098    6,219 ns
+    p80-p90       6,302 ns      6,914 ns        612 ns    1,003,786    6,458 ns
+    p90-p99       6,926 ns      7,458 ns        532 ns      913,298    7,040 ns
+    p99-max       7,466 ns    222,330 ns    214,864 ns      101,395    8,108 ns
+    mean                                                               5,869 ns
+    stdev                                                              1,367 ns
+    mean min-p99                                                       5,848 ns
+    stdev min-p99                                                      1,304 ns
+
+=== A7: iiac-perf tp-pc (20:34:31) ===
+iiac-perf 0.20.0 — Rust latency microbenchmark harness
+
+Calibration:
+  framing/sample      16.18 ns  (timer pair, two-point fit)
+  loop/iter            0.44 ns  (per inner-loop iteration)
+  cal pin           core 4 (from --pin)
+  bench pin         [4, 5] (2 slots, 2 unique CPUs)
+  sleep inhibit     disabled (--no-inhibit)
+  config            none (built-in defaults)
+
+tp-pc (2 threads, TProbe tick-only) [duration=60.0s]:
+  tprobe: producer loop [count=9,883,492]
+                  first          last         range           count     mean
+    min-p1          140 ns        561 ns        421 ns       98,517      477 ns
+    p1-p10          571 ns      5,623 ns      5,052 ns      889,400    4,840 ns
+    p10-p20       5,631 ns      5,981 ns        350 ns      922,910    5,933 ns
+    p20-p30       5,994 ns      6,024 ns         30 ns    1,068,564    6,009 ns
+    p30-p40       6,032 ns      6,062 ns         30 ns    1,104,181    6,048 ns
+    p40-p50       6,074 ns      6,095 ns         21 ns      993,364    6,084 ns
+    p50-p60       6,104 ns      6,125 ns         21 ns      967,681    6,113 ns
+    p60-p70       6,133 ns      6,163 ns         30 ns      862,685    6,146 ns
+    p70-p80       6,176 ns      6,302 ns        127 ns      990,536    6,230 ns
+    p80-p90       6,315 ns      6,863 ns        549 ns      999,614    6,485 ns
+    p90-p99       6,876 ns      7,437 ns        561 ns      888,167    7,007 ns
+    p99-max       7,445 ns    221,654 ns    214,209 ns       97,873    8,105 ns
+    mean                                                               6,055 ns
+    stdev                                                                953 ns
+    mean min-p99                                                       6,036 ns
+    stdev min-p99                                                        859 ns
+
+  tprobe: consumer loop [count=9,883,492]
+                  first          last         range           count     mean
+    min-p1           30 ns        541 ns        511 ns       90,766      467 ns
+    p1-p10          551 ns      5,631 ns      5,080 ns      901,061    4,819 ns
+    p10-p20       5,644 ns      5,981 ns        338 ns    1,025,157    5,931 ns
+    p20-p30       5,994 ns      6,024 ns         30 ns    1,049,034    6,009 ns
+    p30-p40       6,032 ns      6,053 ns         21 ns      814,391    6,043 ns
+    p40-p50       6,062 ns      6,083 ns         21 ns      916,640    6,073 ns
+    p50-p60       6,095 ns      6,125 ns         30 ns    1,246,725    6,109 ns
+    p60-p70       6,133 ns      6,163 ns         30 ns      862,917    6,146 ns
+    p70-p80       6,176 ns      6,315 ns        139 ns    1,019,035    6,232 ns
+    p80-p90       6,323 ns      6,863 ns        540 ns      964,564    6,497 ns
+    p90-p99       6,876 ns      7,437 ns        561 ns      894,584    7,007 ns
+    p99-max       7,445 ns    220,439 ns    212,994 ns       98,618    8,103 ns
+    mean                                                               6,055 ns
+    stdev                                                                951 ns
+    mean min-p99                                                       6,036 ns
+    stdev min-p99                                                        858 ns
+
+=== B7: tprobe tp_pc (20:35:31) ===
+tp_pc (2 threads, tprobe ArrayRecorder) [duration=60.0s]:
+  tprobe: producer loop [count=10,221,989]
+                  first          last         range           count     mean
+    min-p1           80 ns        250 ns        170 ns       99,278      209 ns
+    p1-p10          250 ns      5,353 ns      5,103 ns      914,982    3,200 ns
+    p10-p20       5,361 ns      5,973 ns        612 ns    1,002,979    5,603 ns
+    p20-p30       5,982 ns      6,045 ns         64 ns    1,060,164    6,023 ns
+    p30-p40       6,053 ns      6,062 ns          9 ns      865,540    6,058 ns
+    p40-p50       6,074 ns      6,091 ns         17 ns    1,106,902    6,079 ns
+    p50-p60       6,095 ns      6,104 ns          9 ns      919,604    6,100 ns
+    p60-p70       6,112 ns      6,133 ns         21 ns    1,079,554    6,122 ns
+    p70-p80       6,142 ns      6,285 ns        144 ns    1,106,667    6,189 ns
+    p80-p90       6,294 ns      6,817 ns        523 ns    1,046,194    6,382 ns
+    p90-p99       6,825 ns      7,437 ns        612 ns      917,153    6,994 ns
+    p99-max       7,445 ns    752,168 ns    744,723 ns      102,972    8,080 ns
+    mean                                                               5,860 ns
+    stdev                                                              1,369 ns
+    mean min-p99                                                       5,839 ns
+    stdev min-p99                                                      1,286 ns
+
+  tprobe: consumer loop [count=10,221,989]
+                  first          last         range           count     mean
+    min-p1           20 ns        210 ns        191 ns      103,303      172 ns
+    p1-p10          220 ns      5,370 ns      5,150 ns      918,098    3,235 ns
+    p10-p20       5,374 ns      5,973 ns        599 ns    1,051,456    5,626 ns
+    p20-p30       5,982 ns      6,032 ns         51 ns      868,519    6,013 ns
+    p30-p40       6,045 ns      6,062 ns         17 ns    1,119,476    6,054 ns
+    p40-p50       6,074 ns      6,091 ns         17 ns    1,044,335    6,080 ns
+    p50-p60       6,095 ns      6,104 ns          9 ns      841,478    6,100 ns
+    p60-p70       6,112 ns      6,142 ns         30 ns    1,265,127    6,126 ns
+    p70-p80       6,154 ns      6,264 ns        110 ns      937,854    6,195 ns
+    p80-p90       6,273 ns      6,813 ns        540 ns    1,048,475    6,391 ns
+    p90-p99       6,817 ns      7,437 ns        620 ns      921,027    6,993 ns
+    p99-max       7,445 ns    225,569 ns    218,124 ns      102,841    8,088 ns
+    mean                                                               5,860 ns
+    stdev                                                              1,349 ns
+    mean min-p99                                                       5,839 ns
+    stdev min-p99                                                      1,287 ns
+
+=== A8: iiac-perf tp-pc (20:36:31) ===
+iiac-perf 0.20.0 — Rust latency microbenchmark harness
+
+Calibration:
+  framing/sample      26.28 ns  (timer pair, two-point fit)
+  loop/iter            0.44 ns  (per inner-loop iteration)
+  cal pin           core 4 (from --pin)
+  bench pin         [4, 5] (2 slots, 2 unique CPUs)
+  sleep inhibit     disabled (--no-inhibit)
+  config            none (built-in defaults)
+
+tp-pc (2 threads, TProbe tick-only) [duration=60.0s]:
+  tprobe: producer loop [count=9,835,089]
+                  first          last         range           count     mean
+    min-p1          130 ns        601 ns        471 ns       92,990      526 ns
+    p1-p10          611 ns      5,631 ns      5,020 ns      887,968    5,039 ns
+    p10-p20       5,644 ns      6,024 ns        380 ns      915,374    5,953 ns
+    p20-p30       6,032 ns      6,062 ns         30 ns    1,122,843    6,051 ns
+    p30-p40       6,074 ns      6,083 ns          9 ns      928,273    6,079 ns
+    p40-p50       6,095 ns      6,104 ns          9 ns      981,566    6,100 ns
+    p50-p60       6,112 ns      6,125 ns         13 ns      877,370    6,118 ns
+    p60-p70       6,133 ns      6,163 ns         30 ns    1,083,153    6,145 ns
+    p70-p80       6,176 ns      6,315 ns        139 ns      943,012    6,237 ns
+    p80-p90       6,323 ns      6,796 ns        473 ns    1,018,570    6,437 ns
+    p90-p99       6,804 ns      7,475 ns        671 ns      886,537    7,000 ns
+    p99-max       7,487 ns    216,929 ns    209,442 ns       97,433    8,120 ns
+    mean                                                               6,084 ns
+    stdev                                                                879 ns
+    mean min-p99                                                       6,066 ns
+    stdev min-p99                                                        778 ns
+
+  tprobe: consumer loop [count=9,835,089]
+                  first          last         range           count     mean
+    min-p1           40 ns        631 ns        592 ns       95,177      521 ns
+    p1-p10          641 ns      5,644 ns      5,003 ns      890,836    5,066 ns
+    p10-p20       5,652 ns      6,024 ns        371 ns    1,053,300    5,956 ns
+    p20-p30       6,032 ns      6,053 ns         21 ns      755,514    6,045 ns
+    p30-p40       6,062 ns      6,083 ns         21 ns    1,236,294    6,074 ns
+    p40-p50       6,095 ns      6,104 ns          9 ns      909,681    6,100 ns
+    p50-p60       6,112 ns      6,125 ns         13 ns      828,121    6,118 ns
+    p60-p70       6,133 ns      6,163 ns         30 ns    1,073,929    6,146 ns
+    p70-p80       6,176 ns      6,315 ns        139 ns    1,044,586    6,232 ns
+    p80-p90       6,323 ns      6,804 ns        481 ns      963,962    6,458 ns
+    p90-p99       6,817 ns      7,475 ns        658 ns      885,211    7,001 ns
+    p99-max       7,487 ns    217,604 ns    210,117 ns       98,478    8,119 ns
+    mean                                                               6,084 ns
+    stdev                                                                877 ns
+    mean min-p99                                                       6,066 ns
+    stdev min-p99                                                        777 ns
+
+=== B8: tprobe tp_pc (20:37:32) ===
+tp_pc (2 threads, tprobe ArrayRecorder) [duration=60.0s]:
+  tprobe: producer loop [count=10,432,244]
+                  first          last         range           count     mean
+    min-p1          100 ns        210 ns        111 ns      105,942      196 ns
+    p1-p10          220 ns      5,290 ns      5,070 ns      929,690    2,144 ns
+    p10-p20       5,294 ns      5,783 ns        490 ns    1,050,525    5,469 ns
+    p20-p30       5,792 ns      6,032 ns        241 ns      950,738    5,998 ns
+    p30-p40       6,045 ns      6,074 ns         30 ns    1,364,225    6,061 ns
+    p40-p50       6,083 ns      6,091 ns          9 ns      588,366    6,084 ns
+    p50-p60       6,095 ns      6,112 ns         17 ns    1,461,998    6,104 ns
+    p60-p70       6,125 ns      6,133 ns          9 ns      757,735    6,129 ns
+    p70-p80       6,142 ns      6,273 ns        131 ns    1,135,390    6,181 ns
+    p80-p90       6,285 ns      6,534 ns        249 ns    1,044,775    6,355 ns
+    p90-p99       6,543 ns      7,437 ns        895 ns      937,464    6,966 ns
+    p99-max       7,445 ns    929,815 ns    922,370 ns      105,396    8,069 ns
+    mean                                                               5,742 ns
+    stdev                                                              1,571 ns
+    mean min-p99                                                       5,720 ns
+    stdev min-p99                                                      1,489 ns
+
+  tprobe: consumer loop [count=10,432,244]
+                  first          last         range           count     mean
+    min-p1           20 ns        180 ns        160 ns      103,378      155 ns
+    p1-p10          180 ns      5,294 ns      5,114 ns      935,223    2,152 ns
+    p10-p20       5,302 ns      5,783 ns        481 ns    1,048,202    5,473 ns
+    p20-p30       5,792 ns      6,032 ns        241 ns    1,063,822    5,997 ns
+    p30-p40       6,045 ns      6,062 ns         17 ns      904,352    6,055 ns
+    p40-p50       6,074 ns      6,091 ns         17 ns    1,019,359    6,080 ns
+    p50-p60       6,095 ns      6,112 ns         17 ns    1,355,070    6,104 ns
+    p60-p70       6,125 ns      6,142 ns         17 ns      984,799    6,132 ns
+    p70-p80       6,154 ns      6,256 ns        102 ns      925,017    6,189 ns
+    p80-p90       6,264 ns      6,534 ns        270 ns    1,048,140    6,363 ns
+    p90-p99       6,543 ns      7,437 ns        895 ns      939,513    6,965 ns
+    p99-max       7,445 ns    222,599 ns    215,154 ns      105,369    8,077 ns
+    mean                                                               5,742 ns
+    stdev                                                              1,544 ns
+    mean min-p99                                                       5,720 ns
+    stdev min-p99                                                      1,489 ns
+
+=== A9: iiac-perf tp-pc (20:38:32) ===
+iiac-perf 0.20.0 — Rust latency microbenchmark harness
+
+Calibration:
+  framing/sample      15.68 ns  (timer pair, two-point fit)
+  loop/iter            0.44 ns  (per inner-loop iteration)
+  cal pin           core 4 (from --pin)
+  bench pin         [4, 5] (2 slots, 2 unique CPUs)
+  sleep inhibit     disabled (--no-inhibit)
+  config            none (built-in defaults)
+
+tp-pc (2 threads, TProbe tick-only) [duration=60.0s]:
+  tprobe: producer loop [count=9,817,212]
+                  first          last         range           count     mean
+    min-p1          150 ns        601 ns        451 ns       89,067      529 ns
+    p1-p10          611 ns      5,703 ns      5,092 ns      895,679    5,043 ns
+    p10-p20       5,712 ns      6,032 ns        321 ns      985,986    5,985 ns
+    p20-p30       6,045 ns      6,062 ns         17 ns      893,026    6,055 ns
+    p30-p40       6,074 ns      6,083 ns          9 ns      921,567    6,079 ns
+    p40-p50       6,095 ns      6,104 ns          9 ns    1,003,806    6,100 ns
+    p50-p60       6,112 ns      6,133 ns         21 ns    1,278,545    6,123 ns
+    p60-p70       6,142 ns      6,176 ns         34 ns      869,157    6,155 ns
+    p70-p80       6,184 ns      6,323 ns        139 ns      926,136    6,256 ns
+    p80-p90       6,336 ns      6,876 ns        540 ns      979,486    6,476 ns
+    p90-p99       6,884 ns      7,475 ns        591 ns      875,596    7,013 ns
+    p99-max       7,487 ns    225,703 ns    218,216 ns       99,161    8,136 ns
+    mean                                                               6,096 ns
+    stdev                                                                885 ns
+    mean min-p99                                                       6,077 ns
+    stdev min-p99                                                        779 ns
+
+  tprobe: consumer loop [count=9,817,212]
+                  first          last         range           count     mean
+    min-p1           40 ns        631 ns        592 ns       90,943      522 ns
+    p1-p10          641 ns      5,712 ns      5,070 ns      893,689    5,067 ns
+    p10-p20       5,724 ns      6,024 ns        300 ns      927,086    5,976 ns
+    p20-p30       6,032 ns      6,062 ns         30 ns    1,092,295    6,051 ns
+    p30-p40       6,074 ns      6,083 ns          9 ns      887,927    6,079 ns
+    p40-p50       6,095 ns      6,104 ns          9 ns      950,340    6,100 ns
+    p50-p60       6,112 ns      6,133 ns         21 ns    1,221,955    6,123 ns
+    p60-p70       6,142 ns      6,176 ns         34 ns      863,684    6,155 ns
+    p70-p80       6,184 ns      6,323 ns        139 ns      903,170    6,249 ns
+    p80-p90       6,336 ns      6,876 ns        540 ns    1,005,337    6,479 ns
+    p90-p99       6,884 ns      7,475 ns        591 ns      881,652    7,013 ns
+    p99-max       7,487 ns    227,053 ns    219,566 ns       99,134    8,118 ns
+    mean                                                               6,096 ns
+    stdev                                                                882 ns
+    mean min-p99                                                       6,077 ns
+    stdev min-p99                                                        777 ns
+
+=== B9: tprobe tp_pc (20:39:32) ===
+tp_pc (2 threads, tprobe ArrayRecorder) [duration=60.0s]:
+  tprobe: producer loop [count=10,301,012]
+                  first          last         range           count     mean
+    min-p1           90 ns        260 ns        170 ns      100,256      212 ns
+    p1-p10          260 ns      5,273 ns      5,013 ns      939,791    2,926 ns
+    p10-p20       5,281 ns      5,944 ns        663 ns    1,046,659    5,568 ns
+    p20-p30       5,952 ns      6,015 ns         64 ns    1,060,620    5,987 ns
+    p30-p40       6,024 ns      6,032 ns          9 ns      853,311    6,029 ns
+    p40-p50       6,045 ns      6,053 ns          9 ns    1,281,886    6,049 ns
+    p50-p60       6,062 ns      6,062 ns          0 ns      640,797    6,062 ns
+    p60-p70       6,074 ns      6,095 ns         21 ns    1,219,668    6,082 ns
+    p70-p80       6,104 ns      6,285 ns        182 ns    1,064,065    6,193 ns
+    p80-p90       6,294 ns      6,876 ns        582 ns    1,052,548    6,456 ns
+    p90-p99       6,884 ns      7,424 ns        540 ns      936,747    6,981 ns
+    p99-max       7,437 ns    819,124 ns    811,688 ns      104,664    8,057 ns
+    mean                                                               5,815 ns
+    stdev                                                              1,429 ns
+    mean min-p99                                                       5,794 ns
+    stdev min-p99                                                      1,348 ns
+
+  tprobe: consumer loop [count=10,301,012]
+                  first          last         range           count     mean
+    min-p1           20 ns        230 ns        211 ns      104,492      178 ns
+    p1-p10          240 ns      5,281 ns      5,041 ns      936,539    2,946 ns
+    p10-p20       5,290 ns      5,935 ns        646 ns      991,132    5,553 ns
+    p20-p30       5,944 ns      6,003 ns         59 ns    1,053,808    5,975 ns
+    p30-p40       6,011 ns      6,032 ns         21 ns    1,017,726    6,025 ns
+    p40-p50       6,045 ns      6,053 ns          9 ns    1,167,156    6,049 ns
+    p50-p60       6,062 ns      6,074 ns         13 ns    1,087,488    6,068 ns
+    p60-p70       6,083 ns      6,104 ns         21 ns      861,570    6,091 ns
+    p70-p80       6,112 ns      6,273 ns        161 ns      994,464    6,194 ns
+    p80-p90       6,285 ns      6,876 ns        591 ns    1,040,567    6,465 ns
+    p90-p99       6,884 ns      7,424 ns        540 ns      941,730    6,980 ns
+    p99-max       7,437 ns    221,520 ns    214,083 ns      104,340    8,070 ns
+    mean                                                               5,815 ns
+    stdev                                                              1,406 ns
+    mean min-p99                                                       5,794 ns
+    stdev min-p99                                                      1,347 ns
+
+=== A10: iiac-perf tp-pc (20:40:33) ===
+iiac-perf 0.20.0 — Rust latency microbenchmark harness
+
+Calibration:
+  framing/sample      26.28 ns  (timer pair, two-point fit)
+  loop/iter            0.44 ns  (per inner-loop iteration)
+  cal pin           core 4 (from --pin)
+  bench pin         [4, 5] (2 slots, 2 unique CPUs)
+  sleep inhibit     disabled (--no-inhibit)
+  config            none (built-in defaults)
+
+tp-pc (2 threads, TProbe tick-only) [duration=60.0s]:
+  tprobe: producer loop [count=9,916,848]
+                  first          last         range           count     mean
+    min-p1          120 ns        561 ns        441 ns      119,816      511 ns
+    p1-p10          571 ns      5,471 ns      4,900 ns      870,895    4,671 ns
+    p10-p20       5,484 ns      6,024 ns        540 ns      981,001    5,883 ns
+    p20-p30       6,032 ns      6,062 ns         30 ns      945,607    6,051 ns
+    p30-p40       6,074 ns      6,083 ns          9 ns      880,451    6,079 ns
+    p40-p50       6,095 ns      6,104 ns          9 ns      977,275    6,100 ns
+    p50-p60       6,112 ns      6,133 ns         21 ns    1,286,610    6,123 ns
+    p60-p70       6,142 ns      6,176 ns         34 ns      942,887    6,155 ns
+    p70-p80       6,184 ns      6,323 ns        139 ns      947,632    6,254 ns
+    p80-p90       6,336 ns      6,753 ns        418 ns      970,503    6,435 ns
+    p90-p99       6,766 ns      7,466 ns        701 ns      895,727    7,001 ns
+    p99-max       7,475 ns    422,789 ns    415,314 ns       98,444    8,123 ns
+    mean                                                               6,034 ns
+    stdev                                                              1,034 ns
+    mean min-p99                                                       6,015 ns
+    stdev min-p99                                                        940 ns
+
+  tprobe: consumer loop [count=9,916,848]
+                  first          last         range           count     mean
+    min-p1           30 ns        541 ns        511 ns      103,794      490 ns
+    p1-p10          551 ns      5,484 ns      4,933 ns      885,737    4,606 ns
+    p10-p20       5,492 ns      6,015 ns        523 ns      959,412    5,873 ns
+    p20-p30       6,024 ns      6,062 ns         38 ns    1,131,871    6,047 ns
+    p30-p40       6,074 ns      6,083 ns          9 ns      839,957    6,079 ns
+    p40-p50       6,095 ns      6,104 ns          9 ns      913,285    6,100 ns
+    p50-p60       6,112 ns      6,133 ns         21 ns    1,211,028    6,123 ns
+    p60-p70       6,142 ns      6,176 ns         34 ns      930,154    6,156 ns
+    p70-p80       6,184 ns      6,315 ns        131 ns      931,708    6,242 ns
+    p80-p90       6,323 ns      6,753 ns        431 ns    1,019,699    6,444 ns
+    p90-p99       6,766 ns      7,466 ns        701 ns      891,046    7,003 ns
+    p99-max       7,475 ns    422,249 ns    414,774 ns       99,157    8,122 ns
+    mean                                                               6,034 ns
+    stdev                                                              1,033 ns
+    mean min-p99                                                       6,015 ns
+    stdev min-p99                                                        939 ns
+
+=== B10: tprobe tp_pc (20:41:33) ===
+tp_pc (2 threads, tprobe ArrayRecorder) [duration=60.0s]:
+  tprobe: producer loop [count=10,362,967]
+                  first          last         range           count     mean
+    min-p1          100 ns        220 ns        120 ns       99,749      198 ns
+    p1-p10          220 ns      5,294 ns      5,074 ns      933,483    2,587 ns
+    p10-p20       5,302 ns      5,712 ns        409 ns    1,038,564    5,458 ns
+    p20-p30       5,724 ns      6,024 ns        300 ns      960,282    5,980 ns
+    p30-p40       6,032 ns      6,053 ns         21 ns      901,631    6,045 ns
+    p40-p50       6,062 ns      6,083 ns         21 ns    1,444,616    6,073 ns
+    p50-p60       6,091 ns      6,104 ns         13 ns      969,871    6,099 ns
+    p60-p70       6,112 ns      6,133 ns         21 ns    1,016,146    6,122 ns
+    p70-p80       6,142 ns      6,273 ns        131 ns      933,330    6,189 ns
+    p80-p90       6,285 ns      6,825 ns        540 ns    1,032,739    6,388 ns
+    p90-p99       6,834 ns      7,454 ns        620 ns      927,562    6,995 ns
+    p99-max       7,458 ns    910,377 ns    902,919 ns      104,994    8,092 ns
+    mean                                                               5,780 ns
+    stdev                                                              1,493 ns
+    mean min-p99                                                       5,758 ns
+    stdev min-p99                                                      1,410 ns
+
+  tprobe: consumer loop [count=10,362,967]
+                  first          last         range           count     mean
+    min-p1           20 ns        190 ns        171 ns      106,567      162 ns
+    p1-p10          200 ns      5,302 ns      5,102 ns      925,794    2,606 ns
+    p10-p20       5,311 ns      5,712 ns        401 ns    1,037,989    5,467 ns
+    p20-p30       5,724 ns      6,024 ns        300 ns    1,099,178    5,979 ns
+    p30-p40       6,032 ns      6,053 ns         21 ns      902,465    6,045 ns
+    p40-p50       6,062 ns      6,074 ns         13 ns      882,723    6,068 ns
+    p50-p60       6,083 ns      6,104 ns         21 ns    1,368,621    6,093 ns
+    p60-p70       6,112 ns      6,133 ns         21 ns      969,798    6,122 ns
+    p70-p80       6,142 ns      6,264 ns        123 ns    1,019,061    6,186 ns
+    p80-p90       6,273 ns      6,825 ns        553 ns    1,013,506    6,394 ns
+    p90-p99       6,834 ns      7,458 ns        625 ns      934,251    6,995 ns
+    p99-max       7,466 ns    214,905 ns    207,439 ns      103,014    8,098 ns
+    mean                                                               5,780 ns
+    stdev                                                              1,466 ns
+    mean min-p99                                                       5,759 ns
+    stdev min-p99                                                      1,410 ns
+
+=== done (20:42:33) ===

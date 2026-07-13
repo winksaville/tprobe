@@ -13,17 +13,23 @@
 #   oversized buffer is a run-to-run variance suspect).
 # - Output tees to ./tmp/ (ignored); promote a run worth keeping
 #   into notes/ as a lab record.
+# - A runs with --no-inhibit: symmetric with B (which has no
+#   inhibitor), and iiac-perf's default systemd-inhibit re-exec is
+#   denied by polkit in an ssh session. Sleep inhibition is the
+#   operator's job — arm it from a desktop session before a sweep:
+#   systemd-inhibit --what=sleep:idle --why=sweep sleep 7200
 #
 # usage: scripts/tp-pc-cmp.sh abba  [secs] [cores]
 #        scripts/tp-pc-cmp.sh pairs [secs] [npairs] [cores]
 # defaults: abba 300 s; pairs 60 s x 10; cores 2,3.
+# standard cell: pairs 60 10 (resolves ~50 ns); smoke: pairs 6 10.
 set -eu
 
 IIAC=../iiac-perf/target/release/iiac-perf
 TP=./target/release/examples/tp_pc
 
 usage() {
-    grep '^# usage' -A 2 "$0" | sed 's/^# //' >&2
+    grep '^# usage' -A 3 "$0" | sed 's/^# //' >&2
     exit 2
 }
 
@@ -35,6 +41,13 @@ usage() {
     echo "error: $TP missing (cargo build --release --example tp_pc)" >&2
     exit 1
 }
+
+# A killed ssh session can leave a prior sweep running (its tee
+# writes host-side); overlapping runs contend on the pinned cores.
+if pgrep 'iiac-perf|tp_pc' > /dev/null; then
+    echo "error: a benchmark is already running (pgrep 'iiac-perf|tp_pc')" >&2
+    exit 1
+fi
 
 mode=${1:-}
 case "$mode" in
@@ -49,14 +62,22 @@ case "$mode" in
         ;;
     *) usage ;;
 esac
-cap=$((secs * 140000))
+# Upper-bound samples/s for --cap sizing. Pair-dependent on the
+# 3900x: cross-CCX (2,3) ~115–126 K/s, same-CCX (4,5) ~198 K/s;
+# 220 K covers both with margin. A too-small cap truncates B's
+# recording (deltas dropped, count clamped at cap — throughput
+# metric lost); at 8 B/sample the pad stays ~100 MB at 60 s,
+# below the 400 MB round-2 variance concern.
+rate=220000
+cap=$((secs * rate))
 
-run_a() { echo "=== $1: iiac-perf tp-pc ($(date +%T)) ==="; "$IIAC" tp-pc --duration "$secs" --pin "$cores"; }
+run_a() { echo "=== $1: iiac-perf tp-pc ($(date +%T)) ==="; "$IIAC" --no-inhibit tp-pc --duration "$secs" --pin "$cores"; }
 run_b() { echo "=== $1: tprobe tp_pc ($(date +%T)) ==="; "$TP" --secs "$secs" --cores "$cores" --cap "$cap"; }
 
 main() {
+    echo "=== config: host=$(hostname) mode=$mode secs=$secs npairs=${npairs:-} cores=$cores cap=$cap ==="
     echo "=== WARMUP (discard): iiac-perf tp-pc 60s ($(date +%T)) ==="
-    "$IIAC" tp-pc --duration 60 --pin "$cores" > /dev/null 2>&1
+    "$IIAC" --no-inhibit tp-pc --duration 60 --pin "$cores" > /dev/null 2>&1
 
     case "$mode" in
         abba)

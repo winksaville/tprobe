@@ -4,7 +4,7 @@
 # notes/design.md for the founding rationale.
 [package]
 name = "tprobe"
-version = "0.1.0-2"
+version = "0.1.0-3"
 edition = "2024"
 rust-version = "1.97"
 license = "MIT OR Apache-2.0"

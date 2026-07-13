@@ -30,9 +30,26 @@ cycle-counter trait, recorders, `std`-gated reporting).
   - also ran the tp_pc comparison vs iiac-perf's `tp-pc`
     (ABBA 300 s runs); cost/benefit findings recorded in a
     chores design subsection
-- 0.1.0-3 run-length sweep (60 s / 6 s pairs) on a quiet host
-  (governor, SMT siblings, irqbalance, ssh session); extend
-  the comparison protocol with what's learned
+- 0.1.0-3 feat: 3900x run-length sweep + remote protocol (done)
+  - 2×2 sweep on the 3900x (10 pairs per cell): run length
+    {6 s, 60 s} × core pair {same-CCX, cross-CCX}; findings in
+    the round-3 chores block — core-pair topology is
+    first-order, and raw-delta recording cost grows with run
+    length (B's buffer leaves L3) while histogram recording is
+    run-length invariant
+  - verdict: ArrayRecorder is a short-capture tool (fastest
+    and lossless while cache-resident), not the long-run
+    default — continuous collection wants the fixed-footprint
+    histogram (Q1)
+  - ssh-driving the box (vs the rounds-1–2 on-box session)
+    measurably quieted it: identical A binary ran −650 ns
+    trim mean, +8.8% throughput, −37% extreme tail; confirmed
+    by an ABBA 300 s ssh-driven replication, which also
+    retired round 2's "<1 ns repeatability" (luck, n=2)
+  - protocol extended for ssh-driven runs: `--no-inhibit`
+    symmetry + `kde-inhibit`, straggler guard, config header
+    in output files, host-aware `--cap`; `scripts/ssh-3900x.sh`
+    added (works from a normal shell and the bot sandbox)
 - 0.1.0-4 decide `no_std` histogram — existing crate vs
   hand-rolled fixed-bucket table [[1]]
 - 0.1.0-5 confirm iiac-perf fork intent — deliberate (two-repo)
