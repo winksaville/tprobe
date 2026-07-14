@@ -8,7 +8,8 @@ with the why and how this task will be completed.
 
 ## feat: no_std tprobe core
 
-Commits:
+Commits: [[2]],[[3]],[[4]],[[5]],[[6]],[[7]],[[8]],[[9]],
+[[10]],[[11]],[[12]],[[13]]
 
 [design.md](../design.md) is the founding record; it leaves
 three open questions [[1]] that set the crate's shape. This
@@ -22,6 +23,90 @@ subsection below — then stands up the `no_std` core.
 - Each open question below is a ladder step; the step lands the
   decision and this subsection records the outcome and its
   reasoning.
+
+### As-built ladder
+
+[design.md](../design.md) settles tprobe's founding rationale and
+the collection / analysis / presentation phase split (pluggable
+Recorder, histogram-as-compression), but leaves open questions
+that gate the crate's shape: which `no_std` histogram, the
+recorder trait shape, the snapshot wire format, whether
+iiac-perf's fork is deliberate, and where pinning /
+`perf_event_open` live. Resolve the gating ones — recording
+each decision in a chores design subsection — then seed the
+`no_std` core from the existing copies under the new
+constraints (no-alloc histogram, `&'static str` names,
+cycle-counter trait, recorders, `std`-gated reporting).
+
+- 0.1.0-0 prep: open cycle + chores design subsections for the
+  three questions (done)
+- 0.1.0-1 docs: no_std core phase split + unwrap lints (done)
+- 0.1.0-2 feat: seed no_std core + tp_pc parity example (done;
+  landed as two commits with this title)
+  - ticks + ArrayRecorder + TProbe; `examples/tp_pc` is a
+    parity port of iiac-perf's `tp-pc` (same loop, channels,
+    band-table output)
+  - also ran the tp_pc comparison vs iiac-perf's `tp-pc`
+    (ABBA 300 s runs); cost/benefit findings recorded in a
+    chores design subsection
+- 0.1.0-3 feat: 3900x run-length sweep + remote protocol (done)
+  - 2×2 sweep on the 3900x (10 pairs per cell): run length
+    {6 s, 60 s} × core pair {same-CCX, cross-CCX}; findings in
+    the round-3 block — core-pair topology is first-order, and
+    raw-delta recording cost grows with run length (B's buffer
+    leaves L3) while histogram recording is run-length
+    invariant
+  - verdict: ArrayRecorder is a short-capture tool (fastest
+    and lossless while cache-resident), not the long-run
+    default — continuous collection wants the fixed-footprint
+    histogram (Q1)
+  - ssh-driving the box (vs the rounds-1–2 on-box session)
+    measurably quieted it: identical A binary ran −650 ns
+    trim mean, +8.8% throughput, −37% extreme tail; confirmed
+    by an ABBA 300 s ssh-driven replication, which also
+    retired round 2's "<1 ns repeatability" (luck, n=2)
+  - protocol extended for ssh-driven runs: `--no-inhibit`
+    symmetry + `kde-inhibit`, straggler guard, config header
+    in output files, host-aware `--cap`; `scripts/ssh-3900x.sh`
+    added (works from a normal shell and the bot sandbox)
+- 0.1.0-4 chore: drop ssh driver scripts for unsandboxed ssh
+  (done)
+  - the bot sandbox now runs ssh outside the sandbox
+    (user-level `~/.claude/settings.json`: `excludedCommands`
+    `"ssh *"` + host-scoped allow rules), so plain
+    `ssh <host>` replaces the socat-proxy driver scripts
+  - new measurement host `r5-7600x` (Zen 4 7600X, single-CCX,
+    192.168.1.218) verified reachable alongside the 3900x
+- 0.1.0-5 feat: match tp_pc flags to iiac-perf + --decimals
+  (done)
+  - rename `--secs`→`-d/--duration`, `--cores`→`--pin`; add
+    `--decimals` (0–3, default 1) mirroring iiac-perf; `--cap`
+    stays (tp_pc-specific); tp-pc-cmp.sh updated to the
+    now-symmetric spellings
+- 0.1.0-6 feat: tp_pc version banner + -V (done)
+  - always print `tp_pc <version> — …` as the first output
+    line (the versioning.md Reporter surface — ABBA runs
+    self-identify the binary's commit); `-V/--version` prints
+    it and exits; `--help` leads with it
+- 0.1.0-7 docs: README Build & test, Run, Install sections
+  (done)
+- 0.1.0-8 chore: decide no_std histogram — hand-roll (done)
+  - crates.io survey found no no_std no-alloc log-linear
+    histogram; hand-roll with the h2 parameterization, O(1)
+    record; decision recorded in the Q1 subsection
+- 0.1.0-9 chore: record iiac-perf fork intent — incidental
+  (done)
+  - parallel-work artifact, not deliberate divergence; intent
+    is iiac-perf adopts tprobe when the core is ready
+    (migration on an iiac-perf branch or its main); final
+    call deferred to migration time (Q2 subsection)
+- 0.1.0-10 chore: place pinning/perf in lazy runner crate
+  (done)
+  - `std` feature stays reporting-only; pinning /
+    `perf_event_open` go to a separate runner crate created
+    only when a second consumer needs it; until then pinning
+    stays example-local (Q3 subsection)
+- 0.1.0 feat: no_std tprobe core — close-out (this commit)
 
 ### Q1 no_std histogram crate vs hand-rolled
 
@@ -332,3 +417,15 @@ the `std` feature stays reporting-only.
 # References
 
 [1]: /notes/design.md#open-questions
+[2]: https://github.com/winksaville/tprobe/commit/8c584e94014e "8c584e94014e8d28ebafcabedfb7a798833d92fe"
+[3]: https://github.com/winksaville/tprobe/commit/2f77ec9cc580 "2f77ec9cc5801f36ca3082e406adf1c675c6fad0"
+[4]: https://github.com/winksaville/tprobe/commit/c7c8393cda64 "c7c8393cda64fa14792883b4aa4dc4b82b2017ec"
+[5]: https://github.com/winksaville/tprobe/commit/78d44f42ca7c "78d44f42ca7c8e31b39c883ee22405996bf81ced"
+[6]: https://github.com/winksaville/tprobe/commit/30b16a150072 "30b16a150072db199e0932e3f5e0b81310e2248d"
+[7]: https://github.com/winksaville/tprobe/commit/6ace832c22d5 "6ace832c22d5152374f2e89901932684b82407f2"
+[8]: https://github.com/winksaville/tprobe/commit/afe5d808501d "afe5d808501d1398b07fe7f5be3622dd8229705e"
+[9]: https://github.com/winksaville/tprobe/commit/048007d03eeb "048007d03eeb170717175ccfcd14535bb2c9d4c1"
+[10]: https://github.com/winksaville/tprobe/commit/677a3c6ef968 "677a3c6ef968688052e9ee177b4e9a5061efe017"
+[11]: https://github.com/winksaville/tprobe/commit/a4c9c0898534 "a4c9c0898534da6e8fa9aba50723c75ec7ec4eeb"
+[12]: https://github.com/winksaville/tprobe/commit/645e0c95b40b "645e0c95b40b6251d2efcbe654efb622a7c7d76d"
+[13]: https://github.com/winksaville/tprobe/commit/3c8d14a0af2d "3c8d14a0af2daf9d88f8d74a55579b7494a38749"

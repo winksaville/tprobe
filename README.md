@@ -8,6 +8,21 @@ zc-msg-x1) into one crate — a no-alloc core with an opt-in `std`
 reporting/pinning layer. Founding rationale and design:
 [notes/design.md](notes/design.md).
 
+## Status
+
+Early (0.1.0): the collection core — `ticks`, `TProbe`,
+`ArrayRecorder` — and the `tp_pc` parity example are in
+place. The three design questions that gated the crate's
+shape are resolved and recorded in
+[notes/chores/chores-01.md](notes/chores/chores-01.md):
+
+- histogram: hand-rolled `no_std` log-linear table (h2
+  parameterization, O(1) record) — the next build step
+- iiac-perf adopts tprobe when the core is ready (its fork
+  was incidental, not deliberate)
+- pinning / `perf_event_open`: a separate runner crate,
+  created lazily; the `std` feature stays reporting-only
+
 ## Build & test
 
 Standard cargo:
