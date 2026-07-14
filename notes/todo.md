@@ -75,8 +75,12 @@ cycle-counter trait, recorders, `std`-gated reporting).
   - crates.io survey found no no_std no-alloc log-linear
     histogram; hand-roll with the h2 parameterization, O(1)
     record; decision recorded in the Q1 subsection [[1]]
-- 0.1.0-9 confirm iiac-perf fork intent — deliberate (two-repo)
-  vs incidental (three-repo consolidation) [[2]]
+- 0.1.0-9 chore: record iiac-perf fork intent — incidental
+  (done)
+  - parallel-work artifact, not deliberate divergence; intent
+    is iiac-perf adopts tprobe when the core is ready
+    (migration on an iiac-perf branch or its main); final
+    call deferred to migration time [[2]]
 - 0.1.0-10 place pinning / `perf_event_open` — this crate's
   `std` feature vs a separate runner crate [[3]]
 - 0.1.0 close-out and validation

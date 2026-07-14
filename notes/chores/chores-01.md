@@ -281,6 +281,26 @@ consolidation is two-repo (actor-x1 + zc-msg depend); incidental
 → three-repo (iiac-perf depends too). Confirm before assuming
 which shape we are building for.
 
+**Decision (0.1.0-9): incidental — three-repo intent, final
+call at migration time.** The premise had drifted: iiac-perf
+no longer uses `minstant`; it carries its own probe stack
+(`ticks.rs` + `ticks/`, `probe.rs`, `tprobe.rs`, `tprobe2.rs`)
+because the two repos were worked in parallel while the copies
+it forked from stood still — a parallel-work artifact, not
+deliberate divergence.
+
+- Current intent (wink, 2026-07-13): when tprobe's core is
+  ready, iiac-perf adopts it as a dependency — no long-lived
+  fork; the migration lands on an iiac-perf branch or
+  directly on its main.
+- The final decision is made when the migration work is
+  actually picked up.
+  - Until then tprobe's API owes nothing to iiac-perf's
+    `ideas.md` Tprobe sketch (site ids, guards, userinfo).
+- Consequence for this cycle: build for the three-repo
+  consolidation shape (actor-x1 + zc-msg-x1 + iiac-perf)
+  without hard API commitments to the harness layer.
+
 ### Q3 pinning and perf_event_open placement
 
 CPU pinning (`pin.rs`) and Linux `perf_event_open` counters sit
