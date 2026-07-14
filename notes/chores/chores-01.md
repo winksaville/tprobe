@@ -311,6 +311,24 @@ in a separate runner/harness crate as zc-ring split them. We
 think the core stays `no_std` either way; this only decides
 where the host-only machinery attaches.
 
+**Decision (0.1.0-10): separate runner crate, created
+lazily.** Pinning and `perf_event_open` stay out of tprobe;
+the `std` feature stays reporting-only.
+
+- They are environment setup — none of the phase split's
+  collection / analysis / presentation — so they don't
+  belong behind the crate's `std` feature:
+  - host-only, Linux-only machinery (`core_affinity` / libc,
+    `perf_event_open`) would drag platform cfg into the
+    portable core and couple its releases to runner churn.
+  - it would overlap iiac-perf's harness (its `pin.rs`
+    profiles) — exactly the API obligation Q2 declined.
+- zc-ring's `tp_runner` split is the validated precedent.
+- Lazy creation: pinning today lives in examples via
+  dev-dependencies (`tp_pc` + `core_affinity`); a shared
+  runner crate is created only when a second real consumer
+  needs it, so its API is driven by an actual client.
+
 # References
 
 [1]: /notes/design.md#open-questions

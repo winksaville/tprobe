@@ -81,8 +81,12 @@ cycle-counter trait, recorders, `std`-gated reporting).
     is iiac-perf adopts tprobe when the core is ready
     (migration on an iiac-perf branch or its main); final
     call deferred to migration time [[2]]
-- 0.1.0-10 place pinning / `perf_event_open` — this crate's
-  `std` feature vs a separate runner crate [[3]]
+- 0.1.0-10 chore: place pinning/perf in lazy runner crate
+  (done)
+  - `std` feature stays reporting-only; pinning /
+    `perf_event_open` go to a separate runner crate created
+    only when a second consumer needs it; until then pinning
+    stays example-local [[3]]
 - 0.1.0 close-out and validation
 
 ## Todo
