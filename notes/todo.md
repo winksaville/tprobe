@@ -71,8 +71,10 @@ cycle-counter trait, recorders, `std`-gated reporting).
     it and exits; `--help` leads with it
 - 0.1.0-7 docs: README Build & test, Run, Install sections
   (done)
-- 0.1.0-8 decide `no_std` histogram — existing crate vs
-  hand-rolled fixed-bucket table [[1]]
+- 0.1.0-8 chore: decide no_std histogram — hand-roll (done)
+  - crates.io survey found no no_std no-alloc log-linear
+    histogram; hand-roll with the h2 parameterization, O(1)
+    record; decision recorded in the Q1 subsection [[1]]
 - 0.1.0-9 confirm iiac-perf fork intent — deliberate (two-repo)
   vs incidental (three-repo consolidation) [[2]]
 - 0.1.0-10 place pinning / `perf_event_open` — this crate's

@@ -42,6 +42,40 @@ fixed-footprint histogram anyway. The absolute per-record
 cost bar for Q1 comes from the still-queued recorder-cost
 experiment, not the ping-pong comparison.
 
+**Decision (0.1.0-8): hand-roll.** No existing crate provides
+a `no_std`, no-alloc log-linear histogram; we reimplement the
+HdrHistogram scheme ourselves.
+
+- Survey (crates.io, 2026-07-13):
+  - `hdrhistogram` 7.5.4 — std-only; no `no_std` path at all.
+  - `histogram` (iopsystems) 1.5 — the right algorithm (h2
+    log-linear: HdrHistogram's bucketing with the cleaner
+    `(grouping_power, max_value_power)` parameterization) but
+    heap-backed (`Box<[Count]>` / `Vec`) and std.
+  - `average` 0.17 — `#![no_std]`, but uniform-width bins:
+    wrong shape for latency tails.
+  - `b2histogram` 1.0.1 — `#![no_std]` and O(1), but pure
+    base-2 (no linear sub-buckets): worst-case 2x relative
+    error, too coarse for band tables; dormant since 2024.
+  - remainder (`taktora-stats`, `latency-buckets`, …) —
+    sub-1k-download obscurities, not foundations.
+- Shape of the hand-roll:
+  - h2 parameterization `(grouping_power, max_value_power)`,
+    borrowed from the `histogram` crate's restatement of
+    HdrHistogram.
+  - O(1) record — clz + shift + counter increment; no floats,
+    no allocation, no data-dependent work.
+  - const-generic or borrowed `[Count; N]` storage (the
+    `ArrayRecorder` pattern), so the core stays no-alloc.
+  - merge and quantile extraction are O(buckets) and live in
+    the `std`-gated analysis layer, off the measured path.
+- Footprint knob — we think a 2-sigfig-equivalent default
+  (grouping_power 7–8) is enough for band tables:
+  - ~34 KB at u64 counts over 1..10^12 ticks, ~17 KB with
+    u32 — cache-resident, per round 3's verdict.
+  - embedded targets shrink further via the storage
+    parameter.
+
 ### tp_pc parity comparison: ArrayRecorder vs hdrhistogram
 
 `examples/tp_pc` (tprobe `TProbe` + `ArrayRecorder`, raw-delta
