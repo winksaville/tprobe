@@ -22,6 +22,19 @@ _No cycle currently in progress._
  detail goes in `notes/chores/chores-NN.md` design
  subsections (link via `[N]` ref).
 
+1. feat: registry + buffer-cycling recorder — one handoff
+   protocol (per-slot atomic buffer states) serving both the
+   benchmark drive (inline collect at defined points) and the
+   real-time drive (async collector)
+   [design](design.md#registry-and-buffer-cycling-handoff)
+2. feat: sample types — `mark()` point events, span
+   checkpoints (const-generic K), sample-type descriptor in
+   the wire format
+   [design](design.md#sample-types-and-the-compression-ladder)
+3. chore: recorder cost matrix — hot-path per-event cost vs
+   system cost, tprobe measuring itself
+   [design](design.md#first-experiment-recorder-cost)
+
 ## Done
 
 Completed tasks are moved from `## Todo` to here, `## Done`, as they are completed

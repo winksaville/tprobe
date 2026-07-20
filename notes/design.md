@@ -130,10 +130,11 @@ be a redesign toward a `no_std` core with an opt-in `std` layer:
     `record_span(Span)`) for overlapping scopes on a single
     probe — rare once probes are per-site; add when a consumer
     needs it;
-  - time-ordered cross-site tracing — a future recorder
-    sample-type question (`(id, start, end)` trace records, the
-    flight-recorder use the Phases section notes), not a probe
-    question.
+  - time-ordered cross-site tracing — a recorder sample-type
+    question, not a probe question. The per-probe sample types
+    are now designed (see
+    [Sample types](#sample-types-and-the-compression-ladder));
+    the cross-site `id` correlation remains future.
 
 ## Phases: collection, analysis, presentation
 
@@ -221,6 +222,148 @@ array streams through cache — for long runs the eviction
 pressure could invert the ranking. Comparing recorder impls is
 the first experiment the consolidated tprobe should run against
 itself, folded into probe-overhead calibration.
+
+The comparison is a two-axis cost matrix, not one ranking:
+
+- **Hot-path cost per event** — what the probed code pays:
+  store-to-RAM (array / cycled buffer) vs histogram increment.
+  Measured by tprobe against itself — same measured op, swap
+  the recorder (a one-line A/B under the trait) — with
+  `outer − sum(inner)` self-measuring the apparatus.
+- **System cost** — what the machine pays around the hot path:
+  collector CPU, memory bandwidth, storage/egress writes.
+  "Record to storage" lives here, never in `record()` —
+  storage is where the *collector* drains READY buffers to,
+  and its cost is a collector-side measurement (with its own
+  probe).
+
+A fair A/B needs the recorder dispatch itself to cost
+nothing — weight for the generic/monomorphized side of the
+trait-shape open question, at least in measurement builds.
+
+## Sample types and the compression ladder
+
+What the recorder keeps per event is its own axis, independent
+of where compression happens. Three sample types cover the
+uses that have surfaced:
+
+- **Duration** — the landed `start()`…`record()` delta,
+  8 B/event. Distribution measurement; discards position in
+  time.
+- **Timestamp** — a raw tick per point event, via a new probe
+  verb `mark()` (one tick read, one store). Inter-arrival and
+  ordering measurement; discards nothing. Feeding
+  `mark()`-to-`mark()` deltas to a duration recorder instead
+  records inter-arrivals — same rung as duration.
+- **Timestamp + duration** — `(start_ts, delta)` span
+  records, 16 B/event. The flight-recorder form, and the
+  general one: it reconstructs both the start-timestamp series
+  and the duration series; its byte cost is the only reason
+  the cheaper types exist.
+
+These rungs form a compression ladder, and the histogram of
+the Phases section is its bottom rung — compression inside
+`record()` itself, discarding everything but the distribution.
+The two axes compose: any sample stream can be histogrammed,
+so a deeply embedded target (no storage, no high-bandwidth
+egress) keeps a jitter distribution (histogrammed `mark()`
+inter-arrivals) and a processing-time distribution on-device
+at fixed size — the original tprobe's
+record-directly-to-histogram mode, preserved as
+`HistogramRecorder`. Each probe picks its own (sample type ×
+compression) cell per deployment.
+
+The motivating flight-recorder case is a 100 Hz control loop,
+where one span probe covers three asks with one record:
+
+- **Jitter** — consecutive start timestamps against the 10 ms
+  nominal grid; no separate timestamp probe needed.
+- **Processing time** — the span duration, same record.
+- **Phase breakdown** — intermediate checkpoints inside the
+  span: `start()`, `checkpoint()` ×K, `record()` yields a
+  record of `start + K checkpoint deltas + end`. `K` is
+  const-generic so records stay fixed-size — variable-length
+  records would poison the no-alloc buffer format. One atomic
+  record per iteration also beats a probe per phase: no
+  cross-buffer alignment to reconstruct an iteration, no torn
+  iterations at buffer boundaries.
+- **Loss visibility** — drop-and-count on a duration series
+  says how many samples vanished; timestamps show *which*
+  iterations and when — what jitter forensics wants.
+
+At 100 Hz even the fat checkpointed record is ~5 KB/s,
+trivial to push asynchronously to storage; the same full form
+at 10M events/s is ~160 MB/s — why the ladder is chosen
+per-probe, not per-crate. Wire-format consequence: the
+snapshot/buffer payload needs a sample-type descriptor
+(duration / timestamp / span / span+K), with `K` a layout
+parameter just as the bucket layout is for histograms.
+
+## Registry and buffer-cycling handoff
+
+How collected data crosses from the hot path to analysis. The
+Phases section left probe discovery implicit ("a collector
+thread drains"); the decision is a **registry**: a probe
+registers at construction and receives a set of buffers to
+fill, and a collector harvests filled buffers through the
+registry. One handoff protocol serves both use classes:
+
+- **The protocol is buffer cycling.** A probe fills its
+  current buffer with plain stores; when full it marks the
+  buffer READY and takes a FREE one; the collector drains
+  READY buffers and returns them FREE. Ownership is one atomic
+  state per buffer slot (FILLING → READY → DRAINING → FREE).
+  "Send the buffer" (queue view) and "set a bit the registry
+  notices" (in-place view) are the same ownership transfer —
+  in the `no_std` core both are just atomics; how the
+  collector learns of READY (polling the bits, or an eventfd /
+  condvar wakeup) is a `std`-layer add-on.
+- **Benchmark drive** — collection points are well defined, so
+  the "collector" is inline: the harness calls collect on the
+  registry from its own thread after the loop. With one big
+  buffer per probe this degenerates to exactly
+  `ArrayRecorder` — the landed recorder is the 1-buffer
+  special case.
+- **Real-time drive** — collection is asynchronous: a
+  collector thread polls the ready bits (or blocks on the std
+  wakeup) and histograms off the measured path. Per-event cost
+  is unchanged (store + increment); the swap path's few
+  atomics amortize once per buffer.
+- **Payloads generalize.** A buffer carries any
+  [sample type](#sample-types-and-the-compression-ladder) *or*
+  a histogram table: the same handoff gives `HistogramRecorder`
+  the double-buffered snapshot the Phases section calls for,
+  and it reframes `RingRecorder` as a ring of *buffers* rather
+  than of deltas. We think the buffer ring is the better
+  shape — the collector reads contiguous batches, and it
+  matches zc-ring's buffer-shipping domain.
+- **The registry is app-visible, not ambient.** The app
+  constructs it (or declares it static) and passes it to probe
+  construction — within-process brokering only; transport
+  stays out of scope, as before.
+
+Design questions to settle in the implementing cycle:
+
+- **Fixed capacity** — no-alloc `no_std` means compile-time
+  bounds (max probes, buffers per probe, buffer length): a
+  const-generic registry owning all storage, probes claiming
+  slots atomically at construction. A growable `std` variant
+  can layer on later if ever needed.
+- **Backpressure** — FREE exhausted (collector behind) must
+  never block or overwrite: drop-and-count, the
+  `ArrayRecorder::dropped` philosophy.
+- **Partial buffers** — a low-rate probe may never fill a
+  buffer, starving the collector of its data. Plan: an
+  explicit probe-side flush for defined collection points,
+  plus a per-slot flush-request flag the probe checks with one
+  relaxed load. Collector-side *stealing* of a partial buffer
+  would break the single-writer rule — rejected.
+- **Identity and reclamation** — the registry slot index is
+  the buffer's probe id (a legitimate rebirth of the `site_id`
+  the Spans bullet dissolved — this time load-bearing, since a
+  harvested buffer outlives its fill site); probe drop needs a
+  slot-release story so benchmarks can construct probes per
+  run.
 
 ## Sequencing: this crate before zc-msg-x1's messaging layer
 

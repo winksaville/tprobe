@@ -9,7 +9,7 @@ with the why and how this task will be completed.
 ## feat: no_std tprobe core
 
 Commits: [[2]],[[3]],[[4]],[[5]],[[6]],[[7]],[[8]],[[9]],
-[[10]],[[11]],[[12]],[[13]]
+[[10]],[[11]],[[12]],[[13]],[[14]]
 
 [design.md](../design.md) is the founding record; it leaves
 three open questions [[1]] that set the crate's shape. This
@@ -414,6 +414,19 @@ the `std` feature stays reporting-only.
   runner crate is created only when a second real consumer
   needs it, so its API is driven by an actual client.
 
+## docs: registry + sample-type design
+
+Commits:
+
+Records two design discussions in [design.md](../design.md):
+the registry + buffer-cycling handoff (how collected data
+crosses from the hot path to analysis) and per-event sample
+types as a compression ladder with the histogram as its
+bottom rung; the recorder-cost experiment is upgraded to a
+two-axis cost matrix (hot-path per-event vs system cost).
+The narrative lives in design.md's new sections; three
+ranked `## Todo` entries queue the implementation.
+
 # References
 
 [1]: /notes/design.md#open-questions
@@ -429,3 +442,4 @@ the `std` feature stays reporting-only.
 [11]: https://github.com/winksaville/tprobe/commit/a4c9c0898534 "a4c9c0898534da6e8fa9aba50723c75ec7ec4eeb"
 [12]: https://github.com/winksaville/tprobe/commit/645e0c95b40b "645e0c95b40b6251d2efcbe654efb622a7c7d76d"
 [13]: https://github.com/winksaville/tprobe/commit/3c8d14a0af2d "3c8d14a0af2daf9d88f8d74a55579b7494a38749"
+[14]: https://github.com/winksaville/tprobe/commit/3a7448e23394 "3a7448e23394139981c2e52c930f0a44e7749dfd"
